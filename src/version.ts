@@ -13,8 +13,8 @@ export type PartialVersion = {
 };
 
 export function parseVersion(version: string): Version {
-  const [versionCore, preRelease] = version.split("-");
-  const [major, minor, patch] = versionCore.split(".");
+  const [versionCore, preRelease] = version.split('-');
+  const [major, minor, patch] = versionCore.split('.');
   return {
     major: Number(major),
     minor: Number(minor),
