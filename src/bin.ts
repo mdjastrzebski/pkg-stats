@@ -1,10 +1,12 @@
-import { renderChart } from "./chart.js";
-import { parseVersion, Version, versionCompare } from "./version.js";
+import chalk from 'chalk';
+import { renderChart } from './chart.js';
+import { gradients } from './colors.js';
+import { parseVersion, Version, versionCompare } from './version.js';
 
 const PACKAGE_NAME = process.argv[2];
 
 const NPM_STATS_URL = `https://api.npmjs.org/versions/${encodeURIComponent(
-  PACKAGE_NAME
+  PACKAGE_NAME,
 )}/last-week`;
 
 type VersionStats = {
@@ -32,25 +34,26 @@ export async function bin() {
   const groupedStats = sumByMajor(rawStats);
   const totalDownloads = Object.values(groupedStats).reduce(
     (sum, version) => sum + version.downloads,
-    0
+    0,
   );
 
-  console.log(`${PACKAGE_NAME} weekly downloads\n`);
-  console.log(`Total: ${totalDownloads.toLocaleString()}.\n`);
+  console.log(`NPM weekly downloads for "${PACKAGE_NAME}"\n`);
+  console.log(`Total: ${totalDownloads.toLocaleString()}\n`);
 
-  console.log("By version:\n");
+  console.log('By version:\n');
+
+  const colors = gradients.passion(groupedStats.length);
   const maxDownloads = Math.max(...groupedStats.map((v) => v.downloads));
-  for (const item of groupedStats) {
-    console.log(
-      `${item.versionString.padStart(6)} ${renderChart(
-        item.downloads / maxDownloads
-      )} ${formatDownloads(item.downloads, maxDownloads).padStart(6)}`
-    );
-  }
 
-  console.log(
-    `\nGenerated on ${new Date().toISOString().slice(0, 10)} by npm-stats.`
-  );
+  groupedStats.forEach((item, i) => {
+    const chart = renderChart(item.downloads / maxDownloads);
+    const downloads = formatDownloads(item.downloads, maxDownloads);
+    const color = chalk.hex(colors[i]);
+
+    console.log(
+      `${item.versionString.padStart(6)}.x ${color(chart)} ${color(downloads.padStart(6))}`,
+    );
+  });
 }
 
 type GroupedStats = {
@@ -73,9 +76,7 @@ function sumByMajor(stats: VersionStats[]): GroupedStats[] {
     entry.downloads += versionStats.downloads;
   }
 
-  return Object.values(result).sort((a, b) =>
-    versionCompare(a.version, b.version)
-  );
+  return Object.values(result).sort((a, b) => versionCompare(a.version, b.version));
 }
 
 function sumByMinor(stats: VersionStats[]) {
@@ -92,9 +93,7 @@ function sumByMinor(stats: VersionStats[]) {
     entry.downloads += versionStats.downloads;
   }
 
-  return Object.values(result).sort((a, b) =>
-    versionCompare(a.version, b.version)
-  );
+  return Object.values(result).sort((a, b) => versionCompare(a.version, b.version));
 }
 
 function sumByPatch(stats: VersionStats[]) {
@@ -115,9 +114,7 @@ function sumByPatch(stats: VersionStats[]) {
     entry.downloads += versionStats.downloads;
   }
 
-  return Object.values(result).sort((a, b) =>
-    versionCompare(a.version, b.version)
-  );
+  return Object.values(result).sort((a, b) => versionCompare(a.version, b.version));
 }
 
 function formatDownloads(downloads: number, maxDownloads: number) {

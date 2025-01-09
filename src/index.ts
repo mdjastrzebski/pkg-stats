@@ -1,3 +1,3 @@
-import { bin } from "./bin.js";
+import { bin } from './bin.js';
 
 bin();
