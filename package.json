@@ -1,6 +1,6 @@
 {
   "name": "pkg-stats",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Beautiful NPM package download stats",
   "author": "Maciej Jastrzębski <mdjastrzebski@gmail.com> (https://github.com/mdjastrzebski)",
   "license": "MIT",
@@ -17,7 +17,7 @@
     "dist"
   ],
   "bin": {
-    "pkg-stats": "./dist/bin.js"
+    "pkg-stats": "./bin.js"
   },
   "scripts": {
     "build": "tsc"
