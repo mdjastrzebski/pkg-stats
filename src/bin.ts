@@ -4,12 +4,6 @@ import { renderChart } from './chart.js';
 import { gradients } from './colors.js';
 import { parseVersion, Version, versionCompare } from './version.js';
 
-const PACKAGE_NAME = process.argv[2];
-
-const NPM_STATS_URL = `https://api.npmjs.org/versions/${encodeURIComponent(
-  PACKAGE_NAME,
-)}/last-week`;
-
 type VersionStats = {
   major: number;
   minor: number;
@@ -45,7 +39,9 @@ export async function pkgStats(argv: string[]) {
 
   let data: any;
   try {
-    const response = await fetch(NPM_STATS_URL);
+    const response = await fetch(
+      `https://api.npmjs.org/versions/${encodeURIComponent(options.name)}/last-week`,
+    );
     data = await response.json();
   } catch (error) {
     console.error(`Failed to fetch data for package "${options.name}"`);
@@ -85,8 +81,8 @@ export async function pkgStats(argv: string[]) {
     ? pickTopStats(groupedStats, options.top)
     : groupedStats;
 
-  console.log(`NPM weekly downloads for "${PACKAGE_NAME}"\n`);
-  console.log(`Total: ${totalDownloads.toLocaleString()}\n`);
+  console.log(chalk.bold(`\nNPM weekly downloads for ${chalk.cyan(options.name)}\n`));
+  console.log(`Total: ${chalk.cyan(totalDownloads.toLocaleString())}\n`);
 
   console.log(options.top ? `Top ${options.top} versions:\n` : 'By version:\n');
 
