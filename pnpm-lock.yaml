@@ -11,10 +11,16 @@ importers:
       chalk:
         specifier: ^5.4.1
         version: 5.4.1
+      minimist:
+        specifier: ^1.2.8
+        version: 1.2.8
       tinygradient:
         specifier: ^1.1.5
         version: 1.1.5
     devDependencies:
+      '@types/minimist':
+        specifier: ^1.2.5
+        version: 1.2.5
       '@types/node':
         specifier: ^22.10.5
         version: 22.10.5
@@ -23,6 +29,9 @@ importers:
         version: 5.7.3
 
 packages:
+
+  '@types/minimist@1.2.5':
+    resolution: {integrity: sha512-hov8bUuiLiyFPGyFPE1lwWhmzYbirOXQNNo40+y3zow8aFVTeyn3VWL0VFFfdNddA8S4Vf0Tc062rzyNr7Paag==}
 
   '@types/node@22.10.5':
     resolution: {integrity: sha512-F8Q+SeGimwOo86fiovQh8qiXfFEh2/ocYv7tU5pJ3EXMSSxk1Joj5wefpFK2fHTf/N6HKGSxIDBT9f3gCxXPkQ==}
@@ -33,6 +42,9 @@ packages:
   chalk@5.4.1:
     resolution: {integrity: sha512-zgVZuo2WcZgfUEmsn6eO3kINexW8RAE4maiQ8QNs8CtpPCSyMiYsULR3HQYkm3w8FIA3SberyMJMSldGsW+U3w==}
     engines: {node: ^12.17.0 || ^14.13 || >=16.0.0}
+
+  minimist@1.2.8:
+    resolution: {integrity: sha512-2yyAR8qBkN3YuheJanUpWC5U3bb5osDywNB8RzDVlDwDHbocAJveqqj1u8+SVD7jkWT4yvsHCpWqqWqAxb0zCA==}
 
   tinycolor2@1.6.0:
     resolution: {integrity: sha512-XPaBkWQJdsf3pLKJV9p4qN/S+fm2Oj8AIPo1BTUhg5oxkvm9+SVEGFdhyOz7tTdUTfvxMiAs4sp6/eZO2Ew+pw==}
@@ -50,6 +62,8 @@ packages:
 
 snapshots:
 
+  '@types/minimist@1.2.5': {}
+
   '@types/node@22.10.5':
     dependencies:
       undici-types: 6.20.0
@@ -57,6 +71,8 @@ snapshots:
   '@types/tinycolor2@1.4.6': {}
 
   chalk@5.4.1: {}
+
+  minimist@1.2.8: {}
 
   tinycolor2@1.6.0: {}
 

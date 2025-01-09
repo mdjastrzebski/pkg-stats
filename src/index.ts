@@ -1,3 +1,1 @@
-import { bin } from './bin.js';
-
-bin();
+export { pkgStats } from './bin.js';
