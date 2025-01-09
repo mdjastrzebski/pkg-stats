@@ -37,15 +37,13 @@ export async function bin() {
     0,
   );
 
-  console.log(`${PACKAGE_NAME} NPM weekly downloads\n`);
-  console.log(`Total: ${totalDownloads.toLocaleString()}.\n`);
+  console.log(`NPM weekly downloads for "${PACKAGE_NAME}"\n`);
+  console.log(`Total: ${totalDownloads.toLocaleString()}\n`);
 
   console.log('By version:\n');
 
-  const colors = gradients.retro(groupedStats.length);
+  const colors = gradients.passion(groupedStats.length);
   const maxDownloads = Math.max(...groupedStats.map((v) => v.downloads));
-
-  console.log(colors);
 
   groupedStats.forEach((item, i) => {
     const chart = renderChart(item.downloads / maxDownloads);
@@ -56,8 +54,6 @@ export async function bin() {
       `${item.versionString.padStart(6)}.x ${color(chart)} ${color(downloads.padStart(6))}`,
     );
   });
-
-  console.log(`\nGenerated on ${new Date().toISOString().slice(0, 10)} by npm-stats.`);
 }
 
 type GroupedStats = {

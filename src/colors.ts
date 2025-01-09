@@ -4,20 +4,8 @@ import tinygradient from 'tinygradient';
 export const gradients = {
   mind: (count: number) => toColors(tinygradient(['#473b7b', '#3584a7', '#30d2be']).rgb(count)),
   pastel: (count: number) => toColors(tinygradient(['#74ebd5', '#74ecd5']).hsv(count, 'long')),
-  retro: (count: number) =>
-    toColors(
-      tinygradient([
-        '#3f51b1',
-        '#5a55ae',
-        '#7b5fac',
-        '#8f6aae',
-        '#a86aa4',
-        '#cc6b8e',
-        '#f18271',
-        '#f3a469',
-        '#f7c978',
-      ]).rgb(count),
-    ),
+  passion: (count: number) => toColors(tinygradient(['#f43b47', '#453a94']).rgb(count)),
+  retro: (count: number) => toColors(tinygradient(['#4150AB', '#AE6F97', '#EFCB84']).rgb(count)),
 };
 
 function toColors(colors: tinycolor.Instance[]) {
