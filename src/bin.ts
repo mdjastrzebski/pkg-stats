@@ -26,22 +26,36 @@ type MinimistOptions = {
   patch?: boolean;
 };
 
+type GroupType = 'major' | 'minor' | 'patch';
+
 type CliOptions = {
   help?: boolean;
+  name: string;
   group?: 'major' | 'minor' | 'patch';
   top?: number;
 };
 
-export async function bin() {
-  const options = parseCliOptions(process.argv);
+export async function pkgStats(argv: string[]) {
+  const options = parseCliOptions(argv);
 
   if (options.help) {
     printHelp();
     return;
   }
 
-  const response = await fetch(NPM_STATS_URL);
-  const data = await response.json();
+  let data: any;
+  try {
+    const response = await fetch(NPM_STATS_URL);
+    data = await response.json();
+  } catch (error) {
+    console.error(`Failed to fetch data for package "${options.name}"`);
+    return;
+  }
+
+  if (!Object.keys(data.downloads).length) {
+    console.error(`No data found for package "${options.name}".\n`);
+    process.exit(1);
+  }
 
   const rawStats = Object.keys(data.downloads)
     .map((versionString) => {
@@ -91,27 +105,28 @@ export async function bin() {
   console.log('');
 }
 
-function parseCliOptions(argv: string[]) {
+function parseCliOptions(argv: string[]): CliOptions {
   const options = minimist<MinimistOptions>(argv, {
     string: ['group', 'top'],
     boolean: ['help'],
     alias: { g: 'group', h: 'help', t: 'top' },
   });
 
-  let group = options.group;
-  if (!group) {
-    if (options.major) {
-      group = 'major';
-    } else if (options.minor) {
-      group = 'minor';
-    } else if (options.patch) {
-      group = 'patch';
-    }
+  let group: GroupType = 'major';
+  if (options.group === 'minor' || options.minor) {
+    group = 'minor';
+  } else if (options.group === 'patch' || options.patch) {
+    group = 'patch';
   }
 
   const top = options.top ? parseInt(options.top) : undefined;
 
-  return { name: options._[0], group: group ?? 'major', help: options.help, top };
+  if (!options._[0]) {
+    console.error('Package name is required');
+    process.exit(1);
+  }
+
+  return { name: options._[0], group, help: options.help, top };
 }
 
 function printHelp() {
