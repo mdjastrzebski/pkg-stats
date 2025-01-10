@@ -1,10 +1,11 @@
 import chalk from 'chalk';
 import minimist from 'minimist';
+
 import { renderChart } from './chart.js';
 import { getColors } from './colors.js';
+import { fetchNpmLastWeekDownloads, type NpmLastWeekDownloadsResponse } from './npm-api.js';
+import { groupByType, type GroupedStats, type GroupType, pickTopStats } from './stats.js';
 import { parseVersion, versionCompare } from './version.js';
-import { groupByType, GroupedStats, GroupType, pickTopStats } from './stats.js';
-import { fetchNpmLastWeekDownloads, NpmLastWeekDownloadsResponse } from './npm-api.js';
 
 type MinimistOptions = {
   group?: string;

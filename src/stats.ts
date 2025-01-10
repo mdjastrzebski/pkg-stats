@@ -1,4 +1,4 @@
-import { Version, versionCompare } from './version.js';
+import { type Version, versionCompare } from './version.js';
 
 export type NpmStats = {
   major: number;
