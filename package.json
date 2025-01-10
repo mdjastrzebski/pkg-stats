@@ -21,7 +21,8 @@
   },
   "scripts": {
     "build": "tsc",
-    "test": "vitest"
+    "test": "vitest",
+    "release": "release-it"
   },
   "dependencies": {
     "chalk": "^5.4.1",
@@ -29,8 +30,10 @@
     "tinygradient": "^1.1.5"
   },
   "devDependencies": {
+    "@release-it/conventional-changelog": "^10.0.0",
     "@types/minimist": "^1.2.5",
     "@types/node": "^22.10.5",
+    "release-it": "^18.1.1",
     "typescript": "^5.7.3",
     "vitest": "^2.1.8"
   },
