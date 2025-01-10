@@ -2,7 +2,7 @@ import chalk from 'chalk';
 import minimist from 'minimist';
 import { renderChart } from './chart.js';
 import { getColors } from './colors.js';
-import { parseVersion, Version, versionCompare } from './version.js';
+import { parseVersion, versionCompare } from './version.js';
 import { groupByType, GroupedStats, GroupType, pickTopStats } from './stats.js';
 
 type MinimistOptions = {
@@ -28,6 +28,7 @@ export async function pkgStats(argv: string[]) {
     return;
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let data: any;
   try {
     const response = await fetch(
@@ -35,7 +36,7 @@ export async function pkgStats(argv: string[]) {
     );
     data = await response.json();
   } catch (error) {
-    console.error(`Failed to fetch data for package "${options.name}"`);
+    console.error(`Failed to fetch data for package "${options.name}"`, error);
     return;
   }
 
@@ -54,7 +55,7 @@ export async function pkgStats(argv: string[]) {
     })
     .sort(versionCompare);
 
-  let groupedStats: GroupedStats[] = groupByType(options.group, rawStats);
+  const groupedStats: GroupedStats[] = groupByType(options.group, rawStats);
   const totalDownloads = Object.values(groupedStats).reduce(
     (sum, version) => sum + version.downloads,
     0,
