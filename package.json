@@ -2,8 +2,13 @@
   "name": "pkg-stats",
   "version": "0.2.0",
   "description": "Beautiful NPM package download stats",
-  "author": "Maciej Jastrzębski <mdjastrzebski@gmail.com> (https://github.com/mdjastrzebski)",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mdjastrzebski/pkg-stats"
+  },
+  "homepage": "https://github.com/mdjastrzebski/pkg-stats",
+  "author": "Maciej Jastrzębski <mdjastrzebski@gmail.com> (https://github.com/mdjastrzebski)",
   "keywords": [
     "npm",
     "package",
