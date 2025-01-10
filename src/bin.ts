@@ -64,14 +64,15 @@ export async function pkgStats(argv: string[]) {
     ? pickTopStats(groupedStats, options.top)
     : groupedStats;
 
-  console.log(chalk.bold(`\nNPM weekly downloads for ${chalk.cyan(options.name)}\n`));
-  console.log(`Total: ${chalk.cyan(totalDownloads.toLocaleString())} last week\n`);
+  const colors = getColors(groupedStatsToDisplay.length);
+  const primaryColor = chalk.hex(colors[0]);
+
+  console.log(chalk.bold(`\nNPM weekly downloads for ${primaryColor(options.name)}\n`));
+  console.log(`Total: ${primaryColor(totalDownloads.toLocaleString())} last week\n`);
 
   console.log(options.top ? `Top ${options.top} versions:\n` : 'By version:\n');
 
-  const colors = getColors(groupedStatsToDisplay.length);
   const maxDownloads = Math.max(...groupedStats.map((v) => v.downloads));
-
   groupedStatsToDisplay.forEach((item, i) => {
     const versionParts = item.versionString.split('.');
     const version = versionParts.length < 3 ? `${item.versionString}.x` : item.versionString;
