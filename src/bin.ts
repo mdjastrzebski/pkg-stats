@@ -4,6 +4,7 @@ import { renderChart } from './chart.js';
 import { getColors } from './colors.js';
 import { parseVersion, versionCompare } from './version.js';
 import { groupByType, GroupedStats, GroupType, pickTopStats } from './stats.js';
+import { fetchNpmLastWeekDownloads, NpmLastWeekDownloadsResponse } from './npm-api.js';
 
 type MinimistOptions = {
   group?: string;
@@ -22,19 +23,14 @@ type CliOptions = {
 
 export async function pkgStats(argv: string[]) {
   const options = parseCliOptions(argv);
-
   if (options.help) {
     printHelp();
     return;
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  let data: any;
+  let data: NpmLastWeekDownloadsResponse;
   try {
-    const response = await fetch(
-      `https://api.npmjs.org/versions/${encodeURIComponent(options.name)}/last-week`,
-    );
-    data = await response.json();
+    data = await fetchNpmLastWeekDownloads(options.name);
   } catch (error) {
     console.error(`Failed to fetch data for package "${options.name}"`, error);
     return;
