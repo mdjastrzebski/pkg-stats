@@ -1,7 +1,7 @@
 import chalk from 'chalk';
 import minimist from 'minimist';
 import { renderChart } from './chart.js';
-import { gradients } from './colors.js';
+import { getColors } from './colors.js';
 import { parseVersion, Version, versionCompare } from './version.js';
 
 type VersionStats = {
@@ -82,11 +82,11 @@ export async function pkgStats(argv: string[]) {
     : groupedStats;
 
   console.log(chalk.bold(`\nNPM weekly downloads for ${chalk.cyan(options.name)}\n`));
-  console.log(`Total: ${chalk.cyan(totalDownloads.toLocaleString())}\n`);
+  console.log(`Total: ${chalk.cyan(totalDownloads.toLocaleString())} last week\n`);
 
   console.log(options.top ? `Top ${options.top} versions:\n` : 'By version:\n');
 
-  const colors = gradients.passion(groupedStatsToDisplay.length);
+  const colors = getColors(groupedStatsToDisplay.length, 'summer');
   const maxDownloads = Math.max(...groupedStats.map((v) => v.downloads));
 
   groupedStatsToDisplay.forEach((item, i) => {
