@@ -40,8 +40,8 @@ const gradients = {
   pastel: { colors: ['#74ebd5', '#74ecd5'], options: { interpolation: 'hsv', hsvSpin: 'long' } },
 } as const;
 
-export function getColors(count: number, colorScheme: ColorScheme = 'fruit') {
-  const { colors, options }: GradientConfig = gradients[colorScheme];
+export function getColors(count: number, colorScheme?: ColorScheme) {
+  const { colors, options }: GradientConfig = gradients[colorScheme ?? getRandomScheme()];
 
   if (count < 2) {
     return colors;
@@ -53,4 +53,10 @@ export function getColors(count: number, colorScheme: ColorScheme = 'fruit') {
       ? gradient.hsv(count, options.hsvSpin ?? false)
       : gradient.rgb(count);
   return tinyColors.map((c) => c.toHexString());
+}
+
+function getRandomScheme(): ColorScheme {
+  return Object.keys(gradients)[
+    Math.floor(Math.random() * Object.keys(gradients).length)
+  ] as ColorScheme;
 }

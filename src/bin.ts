@@ -69,7 +69,7 @@ export async function pkgStats(argv: string[]) {
 
   console.log(options.top ? `Top ${options.top} versions:\n` : 'By version:\n');
 
-  const colors = getColors(groupedStatsToDisplay.length, 'summer');
+  const colors = getColors(groupedStatsToDisplay.length);
   const maxDownloads = Math.max(...groupedStats.map((v) => v.downloads));
 
   groupedStatsToDisplay.forEach((item, i) => {
