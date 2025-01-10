@@ -43,7 +43,7 @@ const gradients = {
 export function getColors(count: number, colorScheme?: ColorScheme) {
   const { colors, options }: GradientConfig = gradients[colorScheme ?? getRandomScheme()];
 
-  if (count < 2) {
+  if (count < colors.length) {
     return colors;
   }
 
