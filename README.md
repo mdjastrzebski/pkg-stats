@@ -2,16 +2,8 @@
 
 Beautiful NPM package download stats.
 
-## Installation
-
 ```
-npm install -g pkg-stats
-```
-
-## Running
-
-```
-pkg-stats react
+npx pkg-stats react
 ```
 
 <div align='center'>
