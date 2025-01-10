@@ -27,6 +27,7 @@
   "scripts": {
     "build": "tsc",
     "test": "vitest",
+    "typecheck": "tsc --noEmit",
     "release": "release-it"
   },
   "dependencies": {
