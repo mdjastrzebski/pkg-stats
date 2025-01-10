@@ -3,14 +3,7 @@ import minimist from 'minimist';
 import { renderChart } from './chart.js';
 import { getColors } from './colors.js';
 import { parseVersion, Version, versionCompare } from './version.js';
-
-type VersionStats = {
-  major: number;
-  minor: number;
-  patch: number;
-  preRelease?: string;
-  downloads: number;
-};
+import { groupByType, GroupedStats, GroupType, pickTopStats } from './stats.js';
 
 type MinimistOptions = {
   group?: string;
@@ -19,8 +12,6 @@ type MinimistOptions = {
   minor?: boolean;
   patch?: boolean;
 };
-
-type GroupType = 'major' | 'minor' | 'patch';
 
 type CliOptions = {
   help?: boolean;
@@ -63,15 +54,7 @@ export async function pkgStats(argv: string[]) {
     })
     .sort(versionCompare);
 
-  let groupedStats: GroupedStats[];
-  if (options.group === 'patch') {
-    groupedStats = sumByPatch(rawStats);
-  } else if (options.group === 'minor') {
-    groupedStats = sumByMinor(rawStats);
-  } else {
-    groupedStats = sumByMajor(rawStats);
-  }
-
+  let groupedStats: GroupedStats[] = groupByType(options.group, rawStats);
   const totalDownloads = Object.values(groupedStats).reduce(
     (sum, version) => sum + version.downloads,
     0,
@@ -90,7 +73,8 @@ export async function pkgStats(argv: string[]) {
   const maxDownloads = Math.max(...groupedStats.map((v) => v.downloads));
 
   groupedStatsToDisplay.forEach((item, i) => {
-    const version = options.group != 'patch' ? `${item.versionString}.x` : item.versionString;
+    const versionParts = item.versionString.split('.');
+    const version = versionParts.length < 3 ? `${item.versionString}.x` : item.versionString;
     const chart = renderChart(item.downloads / maxDownloads);
     const downloads = formatDownloads(item.downloads, maxDownloads);
     const color = chalk.hex(colors[i]);
@@ -108,8 +92,10 @@ function parseCliOptions(argv: string[]): CliOptions {
     alias: { g: 'group', h: 'help', t: 'top' },
   });
 
-  let group: GroupType = 'major';
-  if (options.group === 'minor' || options.minor) {
+  let group: GroupType | undefined;
+  if (options.group === 'major' || options.major) {
+    group = 'major';
+  } else if (options.group === 'minor' || options.minor) {
     group = 'minor';
   } else if (options.group === 'patch' || options.patch) {
     group = 'patch';
@@ -140,67 +126,6 @@ function printHelp() {
   `);
 }
 
-type GroupedStats = {
-  version: Version;
-  versionString: string;
-  downloads: number;
-};
-
-function sumByMajor(stats: VersionStats[]): GroupedStats[] {
-  const result: Record<string, GroupedStats> = {};
-  for (const versionStats of stats) {
-    const key = `${versionStats.major}`;
-    const entry = result[key] ?? {
-      version: { major: versionStats.major },
-      versionString: key,
-      downloads: 0,
-    };
-
-    result[key] = entry;
-    entry.downloads += versionStats.downloads;
-  }
-
-  return Object.values(result).sort((a, b) => versionCompare(a.version, b.version));
-}
-
-function sumByMinor(stats: VersionStats[]) {
-  const result: Record<string, GroupedStats> = {};
-  for (const versionStats of stats) {
-    const key = `${versionStats.major}.${versionStats.minor}`;
-    const entry = result[key] ?? {
-      version: { major: versionStats.major, minor: versionStats.minor },
-      versionString: key,
-      downloads: 0,
-    };
-
-    result[key] = entry;
-    entry.downloads += versionStats.downloads;
-  }
-
-  return Object.values(result).sort((a, b) => versionCompare(a.version, b.version));
-}
-
-function sumByPatch(stats: VersionStats[]) {
-  const result: Record<string, GroupedStats> = {};
-  for (const versionStats of stats) {
-    const key = `${versionStats.major}.${versionStats.minor}.${versionStats.patch}`;
-    const entry = result[key] ?? {
-      version: {
-        major: versionStats.major,
-        minor: versionStats.minor,
-        patch: versionStats.patch,
-      },
-      versionString: key,
-      downloads: 0,
-    };
-
-    result[key] = entry;
-    entry.downloads += versionStats.downloads;
-  }
-
-  return Object.values(result).sort((a, b) => versionCompare(a.version, b.version));
-}
-
 function formatDownloads(downloads: number, maxDownloads: number) {
   if (maxDownloads > 1000000) {
     return `${(downloads / 1000000).toFixed(1)}M`;
@@ -211,10 +136,4 @@ function formatDownloads(downloads: number, maxDownloads: number) {
   }
 
   return downloads.toString();
-}
-
-function pickTopStats(stats: GroupedStats[], top: number) {
-  const sortedStats = stats.sort((a, b) => b.downloads - a.downloads);
-  const topStats = sortedStats.slice(0, top);
-  return topStats.sort((a, b) => versionCompare(a.version, b.version));
 }
