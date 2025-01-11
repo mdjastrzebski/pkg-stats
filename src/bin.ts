@@ -86,6 +86,3 @@ function formatDownloads(downloads: number, maxDownloads: number) {
 
   return downloads.toString();
 }
-function dedent(HELP: any, arg1: number): any {
-  throw new Error('Function not implemented.');
-}
