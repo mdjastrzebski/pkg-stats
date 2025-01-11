@@ -1,6 +1,25 @@
-import { program } from 'commander';
+import meow from 'meow';
+import redent from 'redent';
 
 import { COLOR_SCHEMES, type ColorScheme } from './colors.js';
+
+const HELP = `
+pkg-stats <package-name>
+
+Show NPM weekly downloads stats for a package
+
+Options:
+  -h, --help            Show help
+  --major               Group by major version
+  --minor               Group by minor version
+  --patch               Group by patch version
+  -t, --top <number>    Show top <number> versions
+  -c, --color <color>   Color scheme: ${COLOR_SCHEMES.sort().join(', ')}
+`;
+
+export function showHelp() {
+  console.log(redent(HELP, 2));
+}
 
 export type CliOptions = {
   packageName: string;
@@ -9,36 +28,57 @@ export type CliOptions = {
   color?: ColorScheme;
 };
 
-type CommanderOptions = {
-  major?: boolean;
-  minor?: boolean;
-  patch?: boolean;
-  top?: string;
-  color?: string;
-};
-
 export function parseCliOptions(argv: string[]): CliOptions {
-  program
-    .name('pkg-stats')
-    .description('Show NPM weekly downloads stats for a package')
-    .argument('<package-name>', 'Package name')
-    .option('--major', 'Group by major version')
-    .option('--minor', 'Group by minor version')
-    .option('--patch', 'Group by patch version')
-    .option('-t, --top <number>', 'Show top <number> versions')
-    .option('-c, --color <color>', 'Color scheme: ' + COLOR_SCHEMES.join(', '))
-    .parse(argv);
+  const cli = meow(HELP, {
+    argv: argv.slice(2),
+    autoHelp: true,
+    description: 'Show NPM weekly downloads stats for a package',
+    importMeta: import.meta,
+    flags: {
+      help: {
+        type: 'boolean',
+        shortFlag: 'h',
+      },
+      major: {
+        type: 'boolean',
+        shortFlag: 'm',
+      },
+      minor: {
+        type: 'boolean',
+      },
+      patch: {
+        type: 'boolean',
+      },
+      top: {
+        shortFlag: 't',
+        type: 'number',
+      },
+      color: {
+        shortFlag: 'c',
+        type: 'string',
+        choices: COLOR_SCHEMES,
+      },
+    },
+  });
 
-  const args = program.args;
-  const options = program.opts<CommanderOptions>();
+  if (cli.flags.help) {
+    cli.showHelp();
+  }
+
+  if (!cli.input[0]) {
+    throw new Error('<package-name> is required');
+  }
 
   return {
-    packageName: args[0],
-    group: options.major ? 'major' : options.minor ? 'minor' : options.patch ? 'patch' : undefined,
-    top: options.top !== undefined ? parseInt(options.top) : undefined,
-    color:
-      options.color && COLOR_SCHEMES.includes(options.color as ColorScheme)
-        ? (options.color as ColorScheme)
-        : undefined,
+    packageName: cli.input[0],
+    group: cli.flags.major
+      ? 'major'
+      : cli.flags.minor
+      ? 'minor'
+      : cli.flags.patch
+      ? 'patch'
+      : undefined,
+    top: cli.flags.top,
+    color: cli.flags.color as ColorScheme,
   };
 }
