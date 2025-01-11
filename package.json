@@ -29,11 +29,12 @@
     "test": "vitest",
     "typecheck": "tsc --noEmit",
     "lint": "eslint",
-    "release": "release-it"
+    "release": "release-it",
+    "validate": "pnpm lint && pnpm typecheck && pnpm test -- --no-watch"
   },
   "dependencies": {
     "chalk": "^5.4.1",
-    "minimist": "^1.2.8",
+    "commander": "^13.0.0",
     "tinygradient": "^1.1.5"
   },
   "devDependencies": {
