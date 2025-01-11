@@ -7,6 +7,8 @@ type GradientConfig = {
   options: {
     interpolation?: 'hsv' | 'rgb';
     hsvSpin?: 'short' | 'long';
+    padEnd?: number;
+    reverse?: boolean;
   };
 };
 
@@ -20,7 +22,7 @@ const gradients = {
   vice: { colors: ['#5ee7df', '#b490ca'], options: { interpolation: 'hsv' } },
   passion: { colors: ['#f43b47', '#453a94'], options: {} },
   fruit: { colors: ['#ff4e50', '#f9d423'], options: {} },
-  instagram: { colors: ['#833ab4', '#fd1d1d', '#fcb045'], options: {} },
+  insta: { colors: ['#833ab4', '#fd1d1d', '#fcb045'], options: {} },
   retro: {
     colors: [
       '#3f51b1',
@@ -36,27 +38,37 @@ const gradients = {
     options: {},
   },
   summer: { colors: ['#fdbb2d', '#22c1c3'], options: {} },
-  rainbow: { colors: ['#ff0000', '#ff0100'], options: { interpolation: 'hsv', hsvSpin: 'long' } },
-  pastel: { colors: ['#74ebd5', '#74ecd5'], options: { interpolation: 'hsv', hsvSpin: 'long' } },
+  rainbow: {
+    colors: ['#ff0100', '#ff0000'],
+    options: { interpolation: 'hsv', hsvSpin: 'long', padEnd: 0.1 },
+  },
+  pastel: {
+    colors: ['#74ebd5', '#74ecd5'],
+    options: { interpolation: 'hsv', hsvSpin: 'long', padEnd: 0.1 },
+  },
 } as const;
 
-export function getColors(count: number, colorScheme?: ColorScheme) {
-  const { colors, options }: GradientConfig = gradients[colorScheme ?? getRandomScheme()];
+export const COLOR_SCHEMES = Object.keys(gradients) as ColorScheme[];
 
-  if (count < colors.length) {
+export function getColors(count: number, colorScheme?: ColorScheme) {
+  const { colors, options }: GradientConfig = gradients[colorScheme ?? getColorOfDay()];
+  const paddedCount = count + (options.padEnd ? Math.ceil(count * options.padEnd) : 0);
+
+  if (paddedCount < colors.length) {
     return colors;
   }
 
   const gradient = tinygradient(colors as string[]);
   const tinyColors =
     options.interpolation === 'hsv'
-      ? gradient.hsv(count, options.hsvSpin ?? false)
-      : gradient.rgb(count);
+      ? gradient.hsv(paddedCount, options.hsvSpin ?? false)
+      : gradient.rgb(paddedCount);
+
   return tinyColors.map((c) => c.toHexString());
 }
 
-function getRandomScheme(): ColorScheme {
-  return Object.keys(gradients)[
-    Math.floor(Math.random() * Object.keys(gradients).length)
-  ] as ColorScheme;
+function getColorOfDay(): ColorScheme {
+  const date = new Date();
+  const index = date.getDate() + date.getMonth() * 30 + date.getFullYear() * 360;
+  return COLOR_SCHEMES[index % COLOR_SCHEMES.length];
 }
