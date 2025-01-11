@@ -1,14 +1,24 @@
 import chalk from 'chalk';
 
 import { renderChart } from './chart.js';
-import { parseCliOptions } from './cli-options.js';
+import { parseCliOptions, showHelp } from './cli-options.js';
 import { getColors } from './colors.js';
 import { fetchNpmLastWeekDownloads, type NpmLastWeekDownloadsResponse } from './npm-api.js';
 import { groupByType, type GroupedStats, pickTopStats } from './stats.js';
 import { parseVersion, versionCompare } from './version.js';
 
 export async function pkgStats(argv: string[]) {
-  const options = parseCliOptions(argv);
+  let options;
+  try {
+    options = parseCliOptions(argv);
+  } catch (error) {
+    showHelp();
+
+    console.error(
+      chalk.red(`Error parsing CLI options: ${error instanceof Error ? error.message : error}`),
+    );
+    process.exit(2);
+  }
 
   let data: NpmLastWeekDownloadsResponse;
   try {
@@ -75,4 +85,7 @@ function formatDownloads(downloads: number, maxDownloads: number) {
   }
 
   return downloads.toString();
+}
+function dedent(HELP: any, arg1: number): any {
+  throw new Error('Function not implemented.');
 }
