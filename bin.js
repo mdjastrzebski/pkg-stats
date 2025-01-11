@@ -2,4 +2,4 @@
 
 import { pkgStats } from './dist/index.js';
 
-pkgStats(process.argv.slice(2));
+pkgStats(process.argv);
