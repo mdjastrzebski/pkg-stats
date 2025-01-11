@@ -40,12 +40,14 @@ export async function pkgStats(argv: string[]) {
   const primaryColor = chalk.hex(getColors(1, options.color)[0]);
 
   console.log(chalk.bold(`\nPackage: ${primaryColor(options.packageName)}`));
-  console.log('Description:', primaryColor(packageInfo.description), '\n');
+  console.log(primaryColor(`"${packageInfo.description}"`), '\n');
 
-  console.log('License:', primaryColor(packageInfo.license));
-  console.log('Latest version:', primaryColor(packageInfo.version));
-  console.log('Repository:', primaryColor(packageInfo.repository?.url));
-  console.log('Author:', primaryColor(packageInfo.author?.name));
+  console.log('License:', primaryColor(packageInfo.license ?? 'n/a'));
+  console.log('Latest version:', primaryColor(packageInfo.version ?? 'n/a'));
+  console.log('Repository:', primaryColor(packageInfo.repositoryUrl ?? 'n/a'));
+  if (packageInfo.author) {
+    console.log('Author:', primaryColor(packageInfo.author));
+  }
 
   if (!Object.keys(downloads.downloads).length) {
     console.error(`No data found for package "${options.packageName}".\n`);
