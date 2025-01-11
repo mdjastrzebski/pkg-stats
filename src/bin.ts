@@ -3,7 +3,12 @@ import chalk from 'chalk';
 import { renderChart } from './chart.js';
 import { parseCliOptions, showHelp } from './cli-options.js';
 import { getColors } from './colors.js';
-import { fetchNpmLastWeekDownloads, type NpmLastWeekDownloadsResponse } from './npm-api.js';
+import {
+  fetchNpmLastWeekDownloads,
+  fetchNpmPackageLatestVersion,
+  type NpmLastWeekDownloadsResponse,
+  type NpmPackageLatestVersionResponse,
+} from './npm-api.js';
 import { groupByType, type GroupedStats, pickTopStats } from './stats.js';
 import { parseVersion, versionCompare } from './version.js';
 
@@ -20,25 +25,39 @@ export async function pkgStats(argv: string[]) {
     process.exit(2);
   }
 
-  let data: NpmLastWeekDownloadsResponse;
+  let packageInfo: NpmPackageLatestVersionResponse;
+  let downloads: NpmLastWeekDownloadsResponse;
   try {
-    data = await fetchNpmLastWeekDownloads(options.packageName);
+    [packageInfo, downloads] = await Promise.all([
+      fetchNpmPackageLatestVersion(options.packageName),
+      fetchNpmLastWeekDownloads(options.packageName),
+    ]);
   } catch (error) {
     console.error(`Failed to fetch data for package "${options.packageName}"`, error);
     return;
   }
 
-  if (!Object.keys(data.downloads).length) {
+  const primaryColor = chalk.hex(getColors(1, options.color)[0]);
+
+  console.log(chalk.bold(`\nPackage: ${primaryColor(options.packageName)}`));
+  console.log('Description:', primaryColor(packageInfo.description), '\n');
+
+  console.log('License:', primaryColor(packageInfo.license));
+  console.log('Latest version:', primaryColor(packageInfo.version));
+  console.log('Repository:', primaryColor(packageInfo.repository?.url));
+  console.log('Author:', primaryColor(packageInfo.author?.name));
+
+  if (!Object.keys(downloads.downloads).length) {
     console.error(`No data found for package "${options.packageName}".\n`);
     process.exit(1);
   }
 
-  const rawStats = Object.keys(data.downloads)
+  const rawStats = Object.keys(downloads.downloads)
     .map((versionString) => {
       const version = parseVersion(versionString);
       return {
         ...version,
-        downloads: data.downloads[versionString],
+        downloads: downloads.downloads[versionString],
       };
     })
     .sort(versionCompare);
@@ -54,10 +73,8 @@ export async function pkgStats(argv: string[]) {
     : groupedStats;
 
   const colors = getColors(groupedStatsToDisplay.length, options.color);
-  const primaryColor = chalk.hex(colors[0]);
-
-  console.log(chalk.bold(`\nNPM weekly downloads for ${primaryColor(options.packageName)}\n`));
-  console.log(`Total: ${primaryColor(totalDownloads.toLocaleString())} last week\n`);
+  console.log('');
+  console.log(`Total downloads: ${primaryColor(totalDownloads.toLocaleString())} last week`);
 
   console.log(options.top ? `Top ${options.top} versions:\n` : 'By version:\n');
 
@@ -85,7 +102,4 @@ function formatDownloads(downloads: number, maxDownloads: number) {
   }
 
   return downloads.toString();
-}
-function dedent(HELP: any, arg1: number): any {
-  throw new Error('Function not implemented.');
 }
