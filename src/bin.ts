@@ -1,18 +1,19 @@
 import chalk from 'chalk';
 import minimist from 'minimist';
+import redent from 'redent';
 
 import { renderChart } from './chart.js';
-import { getColors } from './colors.js';
+import { COLOR_SCHEMES, type ColorScheme, getColors } from './colors.js';
 import { fetchNpmLastWeekDownloads, type NpmLastWeekDownloadsResponse } from './npm-api.js';
 import { groupByType, type GroupedStats, type GroupType, pickTopStats } from './stats.js';
 import { parseVersion, versionCompare } from './version.js';
 
 type MinimistOptions = {
-  group?: string;
   top?: string;
   major?: boolean;
   minor?: boolean;
   patch?: boolean;
+  color?: string;
 };
 
 type CliOptions = {
@@ -20,6 +21,7 @@ type CliOptions = {
   name: string;
   group?: 'major' | 'minor' | 'patch';
   top?: number;
+  color?: ColorScheme;
 };
 
 export async function pkgStats(argv: string[]) {
@@ -62,7 +64,7 @@ export async function pkgStats(argv: string[]) {
     ? pickTopStats(groupedStats, options.top)
     : groupedStats;
 
-  const colors = getColors(groupedStatsToDisplay.length);
+  const colors = getColors(groupedStatsToDisplay.length, options.color);
   const primaryColor = chalk.hex(colors[0]);
 
   console.log(chalk.bold(`\nNPM weekly downloads for ${primaryColor(options.name)}\n`));
@@ -86,43 +88,54 @@ export async function pkgStats(argv: string[]) {
 
 function parseCliOptions(argv: string[]): CliOptions {
   const options = minimist<MinimistOptions>(argv, {
-    string: ['group', 'top'],
+    string: ['group', 'top', 'color'],
     boolean: ['help'],
-    alias: { g: 'group', h: 'help', t: 'top' },
+    alias: { g: 'group', h: 'help', t: 'top', c: 'color' },
   });
 
-  let group: GroupType | undefined;
-  if (options.group === 'major' || options.major) {
-    group = 'major';
-  } else if (options.group === 'minor' || options.minor) {
-    group = 'minor';
-  } else if (options.group === 'patch' || options.patch) {
-    group = 'patch';
+  if (options.help) {
+    return { help: true, name: '' };
   }
-
-  const top = options.top ? parseInt(options.top) : undefined;
 
   if (!options._[0]) {
     console.error('Package name is required');
     process.exit(1);
   }
 
-  return { name: options._[0], group, help: options.help, top };
+  let group: GroupType | undefined;
+  if (options.major) {
+    group = 'major';
+  } else if (options.minor) {
+    group = 'minor';
+  } else if (options.patch) {
+    group = 'patch';
+  }
+
+  const top = options.top ? parseInt(options.top) : undefined;
+
+  const color =
+    options.color && COLOR_SCHEMES.includes(options.color as ColorScheme)
+      ? (options.color as ColorScheme)
+      : undefined;
+
+  return { name: options._[0], group, help: options.help, top, color };
 }
 
 function printHelp() {
-  console.log(`
+  console.log(
+    redent(`
     Usage:
       pkg-stats [options] <package-name>
 
     Options:
-      -h, --help       Show help
-      --group <group>  Group by major, minor, or patch (default: major)
-      --major          Group by major
-      --minor          Group by minor
-      --patch          Group by patch
-      --top <number>   Show top <number> versions
-  `);
+      -h, --help          Show help
+      --major             Group by major
+      --minor             Group by minor
+      --patch             Group by patch
+      -t, --top <number>  Show top <number> versions
+      -c, --color <color> Color scheme: ${COLOR_SCHEMES.join(', ')}
+  `),
+  );
 }
 
 function formatDownloads(downloads: number, maxDownloads: number) {
