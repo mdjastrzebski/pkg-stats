@@ -29,7 +29,8 @@
     "test": "vitest",
     "typecheck": "tsc --noEmit",
     "lint": "eslint",
-    "release": "release-it"
+    "release": "release-it",
+    "validate": "pnpm lint && pnpm typecheck && pnpm test -- --no-watch"
   },
   "dependencies": {
     "chalk": "^5.4.1",
