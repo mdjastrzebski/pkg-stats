@@ -8,38 +8,61 @@ export type NpmStats = {
   downloads: number;
 };
 
+export type GroupType = 'major' | 'minor' | 'patch';
+
 export type GroupedStats = {
   version: Version;
   versionString: string;
   downloads: number;
 };
 
-export type GroupType = 'major' | 'minor' | 'patch';
+export type GroupByTypeResult = {
+  type: GroupType;
+  result: GroupedStats[];
+};
 
-export function groupByType(type: GroupType | undefined, stats: NpmStats[]): GroupedStats[] {
+export function groupByType(type: GroupType | undefined, stats: NpmStats[]): GroupByTypeResult {
   if (type === 'major') {
-    return groupByMajor(stats);
+    return {
+      type: 'major',
+      result: groupByMajor(stats),
+    };
   }
 
   if (type === 'minor') {
-    return groupByMinor(stats);
+    return {
+      type: 'minor',
+      result: groupByMinor(stats),
+    };
   }
 
   if (type === 'patch') {
-    return groupByPatch(stats);
+    return {
+      type: 'patch',
+      result: groupByPatch(stats),
+    };
   }
 
   const groupedByMajor = groupByMajor(stats);
   if (groupedByMajor.length > 1) {
-    return groupedByMajor;
+    return {
+      type: 'major',
+      result: groupedByMajor,
+    };
   }
 
   const groupedByMinor = groupByMinor(stats);
   if (groupedByMinor.length > 1) {
-    return groupedByMinor;
+    return {
+      type: 'minor',
+      result: groupedByMinor,
+    };
   }
 
-  return groupByPatch(stats);
+  return {
+    type: 'patch',
+    result: groupByPatch(stats),
+  };
 }
 
 function groupByMajor(stats: NpmStats[]): GroupedStats[] {
@@ -101,4 +124,16 @@ export function pickTopStats(stats: GroupedStats[], top: number) {
   const sortedStats = stats.sort((a, b) => b.downloads - a.downloads);
   const topStats = sortedStats.slice(0, top);
   return topStats.sort((a, b) => versionCompare(a.version, b.version));
+}
+
+export function trimVersion(version: Version, type: GroupType) {
+  if (type === 'major') {
+    return `${version.major}`;
+  }
+
+  if (type === 'minor') {
+    return `${version.major}.${version.minor}`;
+  }
+
+  return `${version.major}.${version.minor}.${version.patch}`;
 }

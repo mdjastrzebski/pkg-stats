@@ -9,7 +9,13 @@ import {
   type NpmLastWeekDownloadsResponse,
   type NpmPackageLatestVersionResponse,
 } from './npm-api.js';
-import { groupByType, type GroupedStats, pickTopStats } from './stats.js';
+import {
+  groupByType,
+  GroupByTypeResult,
+  type GroupedStats,
+  pickTopStats,
+  trimVersion,
+} from './stats.js';
 import { parseVersion, versionCompare } from './version.js';
 
 export async function pkgStats(argv: string[]) {
@@ -64,31 +70,35 @@ export async function pkgStats(argv: string[]) {
     })
     .sort(versionCompare);
 
-  const groupedStats: GroupedStats[] = groupByType(options.group, rawStats);
-  const totalDownloads = Object.values(groupedStats).reduce(
+  const grouped = groupByType(options.group, rawStats);
+  const totalDownloads = Object.values(grouped.result).reduce(
     (sum, version) => sum + version.downloads,
     0,
   );
 
   const groupedStatsToDisplay = options.top
-    ? pickTopStats(groupedStats, options.top)
-    : groupedStats;
+    ? pickTopStats(grouped.result, options.top)
+    : grouped.result;
 
+  const latestVersion = parseVersion(packageInfo.version);
+  const trimmedLatestVersion = trimVersion(latestVersion, grouped.type);
+  console.log('AAA', trimmedLatestVersion);
   const colors = getColors(groupedStatsToDisplay.length, options.color);
   console.log('');
-  console.log(`Total downloads: ${primaryColor(totalDownloads.toLocaleString())} last week`);
+  console.log(`Total downloads: ${primaryColor(totalDownloads.toLocaleString())} last week\n`);
 
-  console.log(options.top ? `Top ${options.top} versions:\n` : 'By version:\n');
+  console.log(options.top ? `Top ${options.top} versions:\n` : 'Version:');
 
-  const maxDownloads = Math.max(...groupedStats.map((v) => v.downloads));
+  const maxDownloads = Math.max(...grouped.result.map((v) => v.downloads));
   groupedStatsToDisplay.forEach((item, i) => {
     const versionParts = item.versionString.split('.');
     const version = versionParts.length < 3 ? `${item.versionString}.x` : item.versionString;
     const chart = renderChart(item.downloads / maxDownloads);
     const downloads = formatDownloads(item.downloads, maxDownloads);
     const color = chalk.hex(colors[i]);
+    const tag = item.versionString === trimmedLatestVersion ? 'latest' : '';
 
-    console.log(`${version.padStart(8)} ${color(chart)} ${color(downloads.padStart(6))}`);
+    console.log(`${version.padStart(8)} ${color(chart)} ${color(downloads.padStart(6))} ${tag}`);
   });
 
   console.log('');

@@ -51,10 +51,6 @@ function parseAuthor(author: { name: string; email?: string; url?: string }) {
   }
 
   let result = author.name;
-  if (author.email) {
-    result += ` <${author.email}>`;
-  }
-
   if (author.url) {
     result += ` (${author.url})`;
   }
