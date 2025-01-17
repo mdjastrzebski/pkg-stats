@@ -16,30 +16,35 @@ export type GroupedStats = {
 
 export type GroupType = 'major' | 'minor' | 'patch';
 
-export function groupByType(type: GroupType | undefined, stats: NpmStats[]): GroupedStats[] {
+export type GroupStatsResult = {
+  type: GroupType;
+  stats: GroupedStats[];
+};
+
+export function groupStats(stats: NpmStats[], type: GroupType | undefined): GroupStatsResult {
   if (type === 'major') {
-    return groupByMajor(stats);
+    return { type: 'major', stats: groupByMajor(stats) };
   }
 
   if (type === 'minor') {
-    return groupByMinor(stats);
+    return { type: 'minor', stats: groupByMinor(stats) };
   }
 
   if (type === 'patch') {
-    return groupByPatch(stats);
+    return { type: 'patch', stats: groupByPatch(stats) };
   }
 
   const groupedByMajor = groupByMajor(stats);
-  if (groupedByMajor.length > 1) {
-    return groupedByMajor;
+  if (groupedByMajor.length >= 3) {
+    return { type: 'major', stats: groupedByMajor };
   }
 
   const groupedByMinor = groupByMinor(stats);
-  if (groupedByMinor.length > 1) {
-    return groupedByMinor;
+  if (groupedByMinor.length >= 3) {
+    return { type: 'minor', stats: groupedByMinor };
   }
 
-  return groupByPatch(stats);
+  return { type: 'patch', stats: groupByPatch(stats) };
 }
 
 function groupByMajor(stats: NpmStats[]): GroupedStats[] {
