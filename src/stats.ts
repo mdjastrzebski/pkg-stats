@@ -107,3 +107,7 @@ export function pickTopStats(stats: GroupedStats[], top: number) {
   const topStats = sortedStats.slice(0, top);
   return topStats.sort((a, b) => versionCompare(a.version, b.version));
 }
+
+export function pickMinimalDownloads(stats: GroupedStats[], minDownloads: number) {
+  return stats.filter((stat) => stat.downloads >= minDownloads);
+}
