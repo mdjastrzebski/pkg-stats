@@ -30,12 +30,12 @@ export function groupByType(type: GroupType | undefined, stats: NpmStats[]): Gro
   }
 
   const groupedByMajor = groupByMajor(stats);
-  if (groupedByMajor.length > 1) {
+  if (groupedByMajor.length >= 3) {
     return groupedByMajor;
   }
 
   const groupedByMinor = groupByMinor(stats);
-  if (groupedByMinor.length > 1) {
+  if (groupedByMinor.length >= 3) {
     return groupedByMinor;
   }
 
