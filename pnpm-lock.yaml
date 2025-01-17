@@ -11,9 +11,12 @@ importers:
       chalk:
         specifier: ^5.4.1
         version: 5.4.1
-      commander:
-        specifier: ^13.0.0
-        version: 13.0.0
+      meow:
+        specifier: ^13.2.0
+        version: 13.2.0
+      redent:
+        specifier: ^4.0.0
+        version: 4.0.0
       tinygradient:
         specifier: ^1.1.5
         version: 1.1.5
@@ -24,9 +27,6 @@ importers:
       '@release-it/conventional-changelog':
         specifier: ^10.0.0
         version: 10.0.0(conventional-commits-filter@5.0.0)(conventional-commits-parser@6.0.0)(release-it@18.1.1(@types/node@22.10.5)(typescript@5.7.3))
-      '@types/minimist':
-        specifier: ^1.2.5
-        version: 1.2.5
       '@types/node':
         specifier: ^22.10.5
         version: 22.10.5
@@ -39,9 +39,6 @@ importers:
       globals:
         specifier: ^15.14.0
         version: 15.14.0
-      redent:
-        specifier: ^4.0.0
-        version: 4.0.0
       release-it:
         specifier: ^18.1.1
         version: 18.1.1(@types/node@22.10.5)(typescript@5.7.3)
@@ -556,9 +553,6 @@ packages:
   '@types/json-schema@7.0.15':
     resolution: {integrity: sha512-5+fP8P8MFNC+AyZCDxrB2pkZFPGzqQWUzpSeuuVLvm8VMcorNYavBqoFcxK8bQz4Qsbn4oUEEem4wDLfcysGHA==}
 
-  '@types/minimist@1.2.5':
-    resolution: {integrity: sha512-hov8bUuiLiyFPGyFPE1lwWhmzYbirOXQNNo40+y3zow8aFVTeyn3VWL0VFFfdNddA8S4Vf0Tc062rzyNr7Paag==}
-
   '@types/node@22.10.5':
     resolution: {integrity: sha512-F8Q+SeGimwOo86fiovQh8qiXfFEh2/ocYv7tU5pJ3EXMSSxk1Joj5wefpFK2fHTf/N6HKGSxIDBT9f3gCxXPkQ==}
 
@@ -801,10 +795,6 @@ packages:
 
   color-name@1.1.4:
     resolution: {integrity: sha512-dOy+3AuW3a2wNbZHIuMZpTcgjGuLU/uBL/ubcZF9OXbDo8ff4O8yVp5Bf0efS8uEoYo5q4Fx7dY9OgQGXgAsQA==}
-
-  commander@13.0.0:
-    resolution: {integrity: sha512-oPYleIY8wmTVzkvQq10AEok6YcTC4sRUBl8F9gVuwchGVUCTbl/vhLTaQqutuuySYOsu8YTgV+OxKc/8Yvx+mQ==}
-    engines: {node: '>=18'}
 
   compare-func@2.0.0:
     resolution: {integrity: sha512-zHig5N+tPWARooBnb0Zx1MFcdfpyJrfTJ3Y5L+IFvUm8rM74hHz66z0gw0x4tijh5CorKkKUCnW82R2vmpeCRA==}
@@ -2538,8 +2528,6 @@ snapshots:
 
   '@types/json-schema@7.0.15': {}
 
-  '@types/minimist@1.2.5': {}
-
   '@types/node@22.10.5':
     dependencies:
       undici-types: 6.20.0
@@ -2801,8 +2789,6 @@ snapshots:
       color-name: 1.1.4
 
   color-name@1.1.4: {}
-
-  commander@13.0.0: {}
 
   compare-func@2.0.0:
     dependencies:
