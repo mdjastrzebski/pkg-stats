@@ -11,25 +11,6 @@ type PackageData = {
   downloads: number;
 };
 
-async function fetchPackageData(packageName: string): Promise<PackageData | undefined> {
-  try {
-    const data = await fetchNpmLastWeekDownloads(packageName);
-
-    if (!Object.keys(data.downloads).length) {
-      console.warn(chalk.yellow(`No data found for package "${packageName}".`));
-      return undefined;
-    }
-
-    return {
-      packageName,
-      downloads: Object.values(data.downloads).reduce((sum, downloads) => sum + downloads, 0),
-    };
-  } catch (error) {
-    console.warn(chalk.yellow(`Failed to fetch data for package "${packageName}"`, error));
-    return undefined;
-  }
-}
-
 export async function comparePackages(packageNames: string[], options: CliOptions) {
   const rawPackages = await Promise.all(
     packageNames.map((packageName) => fetchPackageData(packageName)),
@@ -66,4 +47,23 @@ export async function comparePackages(packageNames: string[], options: CliOption
       )}`,
     );
   });
+}
+
+async function fetchPackageData(packageName: string): Promise<PackageData | undefined> {
+  try {
+    const data = await fetchNpmLastWeekDownloads(packageName);
+
+    if (!Object.keys(data.downloads).length) {
+      console.warn(chalk.yellow(`No data found for package "${packageName}".`));
+      return undefined;
+    }
+
+    return {
+      packageName,
+      downloads: Object.values(data.downloads).reduce((sum, downloads) => sum + downloads, 0),
+    };
+  } catch (error) {
+    console.warn(chalk.yellow(`Failed to fetch data for package "${packageName}"`, error));
+    return undefined;
+  }
 }
