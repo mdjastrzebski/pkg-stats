@@ -23,7 +23,7 @@ export function showHelp() {
 }
 
 export type CliOptions = {
-  packageName: string;
+  packageNames: string[];
   group?: 'major' | 'minor' | 'patch';
   top?: number;
   all?: boolean;
@@ -71,12 +71,12 @@ export function parseCliOptions(argv: string[]): CliOptions {
     cli.showHelp();
   }
 
-  if (!cli.input[0]) {
-    throw new Error('<package-name> is required');
+  if (!cli.input.length) {
+    throw new Error('At least one <package-name> is required');
   }
 
   return {
-    packageName: cli.input[0],
+    packageNames: cli.input,
     group: cli.flags.major
       ? 'major'
       : cli.flags.minor

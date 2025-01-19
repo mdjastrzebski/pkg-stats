@@ -1,12 +1,8 @@
 import chalk from 'chalk';
 
-import { renderChart } from './chart.js';
 import { parseCliOptions, showHelp } from './cli-options.js';
-import { getColors } from './colors.js';
-import { formatDownloads } from './format.js';
-import { fetchNpmLastWeekDownloads, type NpmLastWeekDownloadsResponse } from './npm-api.js';
-import { filterStats, groupStats } from './stats.js';
-import { parseVersion, versionCompare } from './version.js';
+import { comparePackages } from './mode/compare-packages.js';
+import { packageDetails } from './mode/package-details.js';
 
 export async function pkgStats(argv: string[]) {
   let options;
@@ -21,66 +17,11 @@ export async function pkgStats(argv: string[]) {
     process.exit(2);
   }
 
-  let data: NpmLastWeekDownloadsResponse;
-  try {
-    data = await fetchNpmLastWeekDownloads(options.packageName);
-  } catch (error) {
-    console.error(`Failed to fetch data for package "${options.packageName}"`, error);
-    return;
+  if (options.packageNames.length === 1) {
+    await packageDetails(options.packageNames[0], options);
+  } else {
+    await comparePackages(options.packageNames, options);
   }
-
-  if (!Object.keys(data.downloads).length) {
-    console.error(`No data found for package "${options.packageName}".\n`);
-    process.exit(1);
-  }
-
-  const npmStats = Object.keys(data.downloads)
-    .map((versionString) => {
-      const version = parseVersion(versionString);
-      return {
-        ...version,
-        downloads: data.downloads[versionString],
-      };
-    })
-    .sort(versionCompare);
-
-  const { type, stats } = groupStats(npmStats, options.group);
-  const totalDownloads = Object.values(stats).reduce((sum, version) => sum + version.downloads, 0);
-
-  const statsToDisplay = filterStats(stats, {
-    totalDownloads,
-    all: options.all,
-    top: options.top,
-  });
-
-  const colors = getColors(statsToDisplay.length, options.color);
-  const primaryColor = chalk.hex(colors[0]);
-
-  console.log(chalk.bold(`\nNPM weekly downloads for ${primaryColor(options.packageName)}\n`));
-  console.log(`Total: ${primaryColor(totalDownloads.toLocaleString())} last week\n`);
-
-  console.log(options.top ? `Top ${options.top} ${type} versions:\n` : `By ${type} version:\n`);
-
-  const maxDownloads = Math.max(...stats.map((v) => v.downloads));
-  const displayData = statsToDisplay.map((item) => {
-    const versionParts = item.versionString.split('.');
-    return {
-      version: versionParts.length < 3 ? `${item.versionString}.x` : item.versionString,
-      chart: renderChart(item.downloads / maxDownloads),
-      downloads: formatDownloads(item.downloads, maxDownloads),
-    };
-  });
-
-  const maxVersionLength = Math.max(...displayData.map((item) => item.version.length));
-  const maxDownloadsLength = Math.max(...displayData.map((item) => item.downloads.length));
-  displayData.forEach((item, i) => {
-    const color = chalk.hex(colors[i]);
-    console.log(
-      `${item.version.padStart(2 + maxVersionLength)} ${color(item.chart)} ${color(
-        item.downloads.padStart(maxDownloadsLength),
-      )}`,
-    );
-  });
 
   console.log('');
 }
