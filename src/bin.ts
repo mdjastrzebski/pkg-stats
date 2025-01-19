@@ -62,14 +62,24 @@ export async function pkgStats(argv: string[]) {
   console.log(options.top ? `Top ${options.top} ${type} versions:\n` : `By ${type} version:\n`);
 
   const maxDownloads = Math.max(...stats.map((v) => v.downloads));
-  statsToDisplay.forEach((item, i) => {
+  const displayData = statsToDisplay.map((item) => {
     const versionParts = item.versionString.split('.');
-    const versionString = versionParts.length < 3 ? `${item.versionString}.x` : item.versionString;
-    const chart = renderChart(item.downloads / maxDownloads);
-    const downloads = formatDownloads(item.downloads, maxDownloads);
-    const color = chalk.hex(colors[i]);
+    return {
+      version: versionParts.length < 3 ? `${item.versionString}.x` : item.versionString,
+      chart: renderChart(item.downloads / maxDownloads),
+      downloads: formatDownloads(item.downloads, maxDownloads),
+    };
+  });
 
-    console.log(`${versionString.padStart(8)} ${color(chart)} ${color(downloads.padStart(6))}`);
+  const maxVersionLength = Math.max(...displayData.map((item) => item.version.length));
+  const maxDownloadsLength = Math.max(...displayData.map((item) => item.downloads.length));
+  displayData.forEach((item, i) => {
+    const color = chalk.hex(colors[i]);
+    console.log(
+      `${item.version.padStart(2 + maxVersionLength)} ${color(item.chart)} ${color(
+        item.downloads.padStart(maxDownloadsLength),
+      )}`,
+    );
   });
 
   console.log('');

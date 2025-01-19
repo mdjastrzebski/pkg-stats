@@ -1,4 +1,4 @@
-import { type Version, versionCompare } from './version.js';
+import { type PartialVersion, versionCompare } from './version.js';
 
 export type NpmStats = {
   major: number;
@@ -9,7 +9,7 @@ export type NpmStats = {
 };
 
 export type GroupedStats = {
-  version: Version;
+  version: PartialVersion;
   versionString: string;
   downloads: number;
 };
