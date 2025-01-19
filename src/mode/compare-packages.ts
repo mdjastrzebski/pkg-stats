@@ -35,11 +35,16 @@ export async function comparePackages(packageNames: string[], options: CliOption
     packageNames.map((packageName) => fetchPackageData(packageName)),
   );
 
-  console.log(chalk.bold(`\nNPM weekly downloads\n`));
-
   const packagesToDisplay = rawPackages
     .filter((pkg) => pkg !== undefined)
     .sort((a, b) => b.downloads - a.downloads);
+
+  if (packagesToDisplay.length === 0) {
+    console.error(chalk.red('\nNo packages found.\n'));
+    process.exit(1);
+  }
+
+  console.log(chalk.bold(`\nNPM weekly downloads\n`));
 
   const maxDownloads = Math.max(...packagesToDisplay.map((v) => v.downloads));
   const displayData = packagesToDisplay.map((item) => {
