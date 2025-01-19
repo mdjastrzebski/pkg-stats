@@ -14,6 +14,7 @@ Options:
   --minor               Group by minor version
   --patch               Group by patch version
   -t, --top <number>    Show top <number> versions
+  -a, --all             Show ALL versions (even negligible ones)
   -c, --color <color>   Color scheme: ${COLOR_SCHEMES.sort().join(', ')}
 `;
 
@@ -25,6 +26,7 @@ export type CliOptions = {
   packageName: string;
   group?: 'major' | 'minor' | 'patch';
   top?: number;
+  all?: boolean;
   color?: ColorScheme;
 };
 
@@ -53,6 +55,10 @@ export function parseCliOptions(argv: string[]): CliOptions {
         shortFlag: 't',
         type: 'number',
       },
+      all: {
+        type: 'boolean',
+        shortFlag: 'a',
+      },
       color: {
         shortFlag: 'c',
         type: 'string',
@@ -79,6 +85,7 @@ export function parseCliOptions(argv: string[]): CliOptions {
       ? 'patch'
       : undefined,
     top: cli.flags.top,
+    all: cli.flags.all,
     color: cli.flags.color as ColorScheme,
   };
 }

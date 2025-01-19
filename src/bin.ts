@@ -5,7 +5,7 @@ import { parseCliOptions, showHelp } from './cli-options.js';
 import { getColors } from './colors.js';
 import { formatDownloads } from './format.js';
 import { fetchNpmLastWeekDownloads, type NpmLastWeekDownloadsResponse } from './npm-api.js';
-import { groupStats, pickTopStats } from './stats.js';
+import { filterStats, groupStats } from './stats.js';
 import { parseVersion, versionCompare } from './version.js';
 
 export async function pkgStats(argv: string[]) {
@@ -47,7 +47,12 @@ export async function pkgStats(argv: string[]) {
   const { type, stats } = groupStats(npmStats, options.group);
   const totalDownloads = Object.values(stats).reduce((sum, version) => sum + version.downloads, 0);
 
-  const statsToDisplay = options.top ? pickTopStats(stats, options.top) : stats;
+  const statsToDisplay = filterStats(stats, {
+    totalDownloads,
+    all: options.all,
+    top: options.top,
+  });
+
   const colors = getColors(statsToDisplay.length, options.color);
   const primaryColor = chalk.hex(colors[0]);
 

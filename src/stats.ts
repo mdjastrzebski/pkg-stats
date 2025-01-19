@@ -102,7 +102,26 @@ function groupByPatch(stats: NpmStats[]) {
   return Object.values(result).sort((a, b) => versionCompare(a.version, b.version));
 }
 
-export function pickTopStats(stats: GroupedStats[], top: number) {
+export type FilterStatsOptions = {
+  totalDownloads: number;
+  all?: boolean;
+  top?: number;
+};
+
+export function filterStats(stats: GroupedStats[], options: FilterStatsOptions) {
+  if (options.all) {
+    return stats;
+  }
+
+  if (options.top) {
+    return pickTopStats(stats, options.top);
+  }
+
+  const downloadThreshold = 0.005 * options.totalDownloads; // 0.5%
+  return stats.filter((stat) => stat.downloads >= downloadThreshold);
+}
+
+function pickTopStats(stats: GroupedStats[], top: number) {
   const sortedStats = stats.sort((a, b) => b.downloads - a.downloads);
   const topStats = sortedStats.slice(0, top);
   return topStats.sort((a, b) => versionCompare(a.version, b.version));
