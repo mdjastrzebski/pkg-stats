@@ -2,7 +2,7 @@ import chalk from 'chalk';
 
 import { parseCliOptions, showHelp } from './cli-options.js';
 import { comparePackages } from './mode/compare-packages.js';
-import { packageDetails } from './mode/package-details.js';
+import { printPackageStats } from './mode/package-stats.js';
 
 export async function pkgStats(argv: string[]) {
   let options;
@@ -18,7 +18,7 @@ export async function pkgStats(argv: string[]) {
   }
 
   if (options.packageNames.length === 1) {
-    await packageDetails(options.packageNames[0], options);
+    await printPackageStats(options.packageNames[0], options);
   } else {
     await comparePackages(options.packageNames, options);
   }

@@ -8,7 +8,7 @@ import { fetchNpmLastWeekDownloads, type NpmLastWeekDownloadsResponse } from '..
 import { filterStats, groupStats } from '../stats.js';
 import { parseVersion, versionCompare } from '../version.js';
 
-export async function packageDetails(packageName: string, options: CliOptions) {
+export async function printPackageStats(packageName: string, options: CliOptions) {
   let data: NpmLastWeekDownloadsResponse;
   try {
     data = await fetchNpmLastWeekDownloads(packageName);
