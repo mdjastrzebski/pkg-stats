@@ -1,5 +1,5 @@
-import { VersionStats } from './mode/package-stats.js';
-import { type PartialVersion, versionCompare } from './version.js';
+import { type VersionStats } from './types.js';
+import { parseVersion, type PartialVersion, versionCompare } from './version.js';
 
 export type NpmStats = {
   major: number;
@@ -125,5 +125,5 @@ export function filterStats(stats: VersionStats[], options: FilterStatsOptions) 
 function pickTopStats(stats: VersionStats[], top: number) {
   const sortedStats = stats.sort((a, b) => b.downloads - a.downloads);
   const topStats = sortedStats.slice(0, top);
-  return topStats.sort((a, b) => versionCompare(a.version, b.version));
+  return topStats.sort((a, b) => versionCompare(parseVersion(a.version), parseVersion(b.version)));
 }
