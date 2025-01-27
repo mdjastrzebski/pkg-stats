@@ -1,3 +1,4 @@
+import { VersionStats } from './mode/package-stats.js';
 import { type PartialVersion, versionCompare } from './version.js';
 
 export type NpmStats = {
@@ -108,7 +109,7 @@ export type FilterStatsOptions = {
   top?: number;
 };
 
-export function filterStats(stats: GroupedStats[], options: FilterStatsOptions) {
+export function filterStats(stats: VersionStats[], options: FilterStatsOptions) {
   if (options.all) {
     return stats;
   }
@@ -121,7 +122,7 @@ export function filterStats(stats: GroupedStats[], options: FilterStatsOptions) 
   return stats.filter((stat) => stat.downloads >= downloadThreshold);
 }
 
-function pickTopStats(stats: GroupedStats[], top: number) {
+function pickTopStats(stats: VersionStats[], top: number) {
   const sortedStats = stats.sort((a, b) => b.downloads - a.downloads);
   const topStats = sortedStats.slice(0, top);
   return topStats.sort((a, b) => versionCompare(a.version, b.version));
