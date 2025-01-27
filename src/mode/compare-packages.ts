@@ -11,7 +11,7 @@ type PackageData = {
   downloads: number;
 };
 
-export async function comparePackages(packageNames: string[], options: CliOptions) {
+export async function fetchPackagesToCompare(packageNames: string[]): Promise<PackageData[]> {
   const rawPackages = await Promise.all(
     packageNames.map((packageName) => fetchPackageData(packageName)),
   );
@@ -21,14 +21,17 @@ export async function comparePackages(packageNames: string[], options: CliOption
     .sort((a, b) => b.downloads - a.downloads);
 
   if (packagesToDisplay.length === 0) {
-    console.error(chalk.red('\nNo packages found.\n'));
-    process.exit(1);
+    throw new Error('No packages found.');
   }
 
+  return packagesToDisplay;
+}
+
+export function printPackagesToCompare(packages: PackageData[], options: CliOptions) {
   console.log(chalk.bold(`\nNPM weekly downloads\n`));
 
-  const maxDownloads = Math.max(...packagesToDisplay.map((v) => v.downloads));
-  const displayData = packagesToDisplay.map((item) => {
+  const maxDownloads = Math.max(...packages.map((v) => v.downloads));
+  const displayData = packages.map((item) => {
     return {
       name: item.packageName,
       chart: renderChart(item.downloads / maxDownloads),
@@ -38,7 +41,7 @@ export async function comparePackages(packageNames: string[], options: CliOption
 
   const maxNameLength = Math.max(...displayData.map((item) => item.name.length));
   const maxDownloadsLength = Math.max(...displayData.map((item) => item.downloads.length));
-  const colors = getColors(packagesToDisplay.length, options.color);
+  const colors = getColors(packages.length, options.color);
   displayData.forEach((item, i) => {
     const color = chalk.hex(colors[i]);
     console.log(
