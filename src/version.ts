@@ -5,21 +5,21 @@ export type Version = {
   preRelease?: string;
 };
 
-export type VersionGroup = MajorVersionGroup | MinorVersionGroup | PatchVersionGroup;
+export type VersionGroup = MajorVersion | MinorVersion | PatchVersion;
 
-type MajorVersionGroup = {
+type MajorVersion = {
   major: number;
   minor?: undefined;
   patch?: undefined;
 };
 
-type MinorVersionGroup = {
+type MinorVersion = {
   major: number;
   minor: number;
   patch?: undefined;
 };
 
-type PatchVersionGroup = {
+type PatchVersion = {
   major: number;
   minor: number;
   patch: number;
