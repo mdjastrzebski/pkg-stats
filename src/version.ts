@@ -5,11 +5,24 @@ export type Version = {
   preRelease?: string;
 };
 
-export type PartialVersion = {
+export type VersionGroup = MajorVersionGroup | MinorVersionGroup | PatchVersionGroup;
+
+type MajorVersionGroup = {
   major: number;
-  minor?: number;
-  patch?: number;
-  preRelease?: string;
+  minor?: undefined;
+  patch?: undefined;
+};
+
+type MinorVersionGroup = {
+  major: number;
+  minor: number;
+  patch?: undefined;
+};
+
+type PatchVersionGroup = {
+  major: number;
+  minor: number;
+  patch: number;
 };
 
 export function parseVersion(version: string): Version {
@@ -23,7 +36,7 @@ export function parseVersion(version: string): Version {
   };
 }
 
-export function versionCompare(a: PartialVersion, b: PartialVersion) {
+export function versionCompare(a: VersionGroup, b: VersionGroup) {
   if (a.major !== b.major) {
     return b.major - a.major;
   }
@@ -34,10 +47,6 @@ export function versionCompare(a: PartialVersion, b: PartialVersion) {
 
   if (a.patch !== undefined && b.patch !== undefined && a.patch !== b.patch) {
     return b.patch - a.patch;
-  }
-
-  if (a.preRelease !== undefined && b.preRelease !== undefined) {
-    return a.preRelease.localeCompare(b.preRelease);
   }
 
   return 0;
