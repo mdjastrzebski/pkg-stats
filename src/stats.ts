@@ -123,7 +123,14 @@ export function filterStats(stats: GroupStats[], options: FilterStatsOptions) {
   }
 
   const downloadThreshold = 0.005 * options.totalDownloads; // 0.5%
-  return stats.filter((stat) => stat.downloads >= downloadThreshold);
+  const filtered = stats.filter((stat) => stat.downloads >= downloadThreshold);
+
+  // If we were to skip only a single state, we rather display it than replace it with "rest".
+  if (filtered.length + 1 >= stats.length) {
+    return stats;
+  }
+
+  return filtered;
 }
 
 function pickTopStats(stats: GroupStats[], top: number) {
