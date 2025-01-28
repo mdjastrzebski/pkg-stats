@@ -5,7 +5,7 @@ import { type CliOptions } from '../cli-options.js';
 import { getColors } from '../colors.js';
 import { formatDownloads } from '../format.js';
 import { fetchNpmLastWeekDownloads, type NpmLastWeekDownloadsResponse } from '../npm-api.js';
-import { filterStats, groupStats } from '../stats.js';
+import { type DisplayStats, filterStats, groupStats } from '../stats.js';
 import { parseVersion, versionCompare } from '../version.js';
 
 export async function printPackageStats(packageName: string, options: CliOptions) {
@@ -35,7 +35,7 @@ export async function printPackageStats(packageName: string, options: CliOptions
   const { type, stats } = groupStats(npmStats, options.group);
   const totalDownloads = Object.values(stats).reduce((sum, version) => sum + version.downloads, 0);
 
-  const statsToDisplay = filterStats(stats, {
+  const statsToDisplay: DisplayStats[] = filterStats(stats, {
     totalDownloads,
     all: options.all,
     top: options.top,
@@ -44,7 +44,6 @@ export async function printPackageStats(packageName: string, options: CliOptions
   const downloadToDisplay = statsToDisplay.reduce((sum, version) => sum + version.downloads, 0);
   if (totalDownloads - downloadToDisplay > 0) {
     statsToDisplay.push({
-      version: { major: 1_000_000 },
       versionString: 'rest',
       downloads: totalDownloads - downloadToDisplay,
     });

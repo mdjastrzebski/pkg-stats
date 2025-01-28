@@ -21,6 +21,11 @@ export type GroupStatsResult = {
   stats: GroupStats[];
 };
 
+export type DisplayStats = {
+  versionString: string;
+  downloads: number;
+};
+
 export function groupStats(stats: NpmStats[], type: GroupType | undefined): GroupStatsResult {
   if (type === 'major') {
     return { type: 'major', stats: groupByMajor(stats) };
