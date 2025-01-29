@@ -1,10 +1,8 @@
 import chalk from 'chalk';
 
-import { renderChart } from '../chart.js';
 import { type CliOptions } from '../cli-options.js';
-import { getColors } from '../colors.js';
-import { formatDownloads } from '../format.js';
 import { fetchNpmLastWeekDownloads } from '../npm-api.js';
+import { printChart } from '../output.js';
 
 type PackageData = {
   packageName: string;
@@ -26,27 +24,12 @@ export async function comparePackages(packageNames: string[], options: CliOption
   }
 
   console.log(chalk.bold(`\nNPM weekly downloads\n`));
+  const items = packagesToDisplay.map((item) => ({
+    label: item.packageName,
+    value: item.downloads,
+  }));
 
-  const maxDownloads = Math.max(...packagesToDisplay.map((v) => v.downloads));
-  const displayData = packagesToDisplay.map((item) => {
-    return {
-      name: item.packageName,
-      chart: renderChart(item.downloads / maxDownloads),
-      downloads: formatDownloads(item.downloads, maxDownloads),
-    };
-  });
-
-  const maxNameLength = Math.max(...displayData.map((item) => item.name.length));
-  const maxDownloadsLength = Math.max(...displayData.map((item) => item.downloads.length));
-  const colors = getColors(packagesToDisplay.length, options.color);
-  displayData.forEach((item, i) => {
-    const color = chalk.hex(colors[i]);
-    console.log(
-      `${item.name.padStart(2 + maxNameLength)} ${color(item.chart)} ${color(
-        item.downloads.padStart(maxDownloadsLength),
-      )}`,
-    );
-  });
+  printChart(items, { colorScheme: options.color, indent: 2 });
 }
 
 async function fetchPackageData(packageName: string): Promise<PackageData | undefined> {

@@ -1,10 +1,9 @@
 import chalk from 'chalk';
 
-import { renderChart } from '../chart.js';
 import { type CliOptions } from '../cli-options.js';
-import { getColors } from '../colors.js';
-import { formatDownloads } from '../format.js';
+import { getPrimaryColor } from '../colors.js';
 import { fetchNpmLastWeekDownloads, type NpmLastWeekDownloadsResponse } from '../npm-api.js';
+import { printChart } from '../output.js';
 import { type DisplayStats, filterStats, groupStats } from '../stats.js';
 import { parseVersion, versionCompare } from '../version.js';
 
@@ -49,31 +48,16 @@ export async function printPackageStats(packageName: string, options: CliOptions
     });
   }
 
-  const colors = getColors(statsToDisplay.length, options.color);
-  const primaryColor = chalk.hex(colors[0]);
-
+  const primaryColor = chalk.hex(getPrimaryColor(options.color));
   console.log(chalk.bold(`\nNPM weekly downloads for ${primaryColor(packageName)}\n`));
   console.log(`Total: ${primaryColor(totalDownloads.toLocaleString())} last week\n`);
 
   console.log(options.top ? `Top ${options.top} ${type} versions:\n` : `By ${type} version:\n`);
 
-  const maxDownloads = Math.max(...statsToDisplay.map((v) => v.downloads));
-  const displayData = statsToDisplay.map((item) => {
-    return {
-      version: item.versionString,
-      chart: renderChart(item.downloads / maxDownloads),
-      downloads: formatDownloads(item.downloads, maxDownloads),
-    };
-  });
+  const items = statsToDisplay.map((item) => ({
+    label: item.versionString,
+    value: item.downloads,
+  }));
 
-  const maxVersionLength = Math.max(...displayData.map((item) => item.version.length));
-  const maxDownloadsLength = Math.max(...displayData.map((item) => item.downloads.length));
-  displayData.forEach((item, i) => {
-    const color = chalk.hex(colors[i]);
-    console.log(
-      `${item.version.padStart(2 + maxVersionLength)} ${color(item.chart)} ${color(
-        item.downloads.padStart(maxDownloadsLength),
-      )}`,
-    );
-  });
+  printChart(items, { colorScheme: options.color, indent: 2 });
 }
