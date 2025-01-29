@@ -1,4 +1,4 @@
-import { type PartialVersion, versionCompare } from './version.js';
+import { versionCompare, type VersionGroup } from './version.js';
 
 export type NpmStats = {
   major: number;
@@ -8,17 +8,22 @@ export type NpmStats = {
   downloads: number;
 };
 
-export type GroupedStats = {
-  version: PartialVersion;
+export type GroupType = 'major' | 'minor' | 'patch';
+
+export type GroupStats = {
+  version: VersionGroup;
   versionString: string;
   downloads: number;
 };
 
-export type GroupType = 'major' | 'minor' | 'patch';
-
 export type GroupStatsResult = {
   type: GroupType;
-  stats: GroupedStats[];
+  stats: GroupStats[];
+};
+
+export type DisplayStats = {
+  versionString: string;
+  downloads: number;
 };
 
 export function groupStats(stats: NpmStats[], type: GroupType | undefined): GroupStatsResult {
@@ -47,10 +52,10 @@ export function groupStats(stats: NpmStats[], type: GroupType | undefined): Grou
   return { type: 'patch', stats: groupByPatch(stats) };
 }
 
-function groupByMajor(stats: NpmStats[]): GroupedStats[] {
-  const result: Record<string, GroupedStats> = {};
+function groupByMajor(stats: NpmStats[]): GroupStats[] {
+  const result: Record<string, GroupStats> = {};
   for (const versionStats of stats) {
-    const key = `${versionStats.major}`;
+    const key = `${versionStats.major}.x`;
     const entry = result[key] ?? {
       version: { major: versionStats.major },
       versionString: key,
@@ -65,9 +70,9 @@ function groupByMajor(stats: NpmStats[]): GroupedStats[] {
 }
 
 function groupByMinor(stats: NpmStats[]) {
-  const result: Record<string, GroupedStats> = {};
+  const result: Record<string, GroupStats> = {};
   for (const versionStats of stats) {
-    const key = `${versionStats.major}.${versionStats.minor}`;
+    const key = `${versionStats.major}.${versionStats.minor}.x`;
     const entry = result[key] ?? {
       version: { major: versionStats.major, minor: versionStats.minor },
       versionString: key,
@@ -82,7 +87,7 @@ function groupByMinor(stats: NpmStats[]) {
 }
 
 function groupByPatch(stats: NpmStats[]) {
-  const result: Record<string, GroupedStats> = {};
+  const result: Record<string, GroupStats> = {};
   for (const versionStats of stats) {
     const key = `${versionStats.major}.${versionStats.minor}.${versionStats.patch}`;
     const entry = result[key] ?? {
@@ -108,7 +113,7 @@ export type FilterStatsOptions = {
   top?: number;
 };
 
-export function filterStats(stats: GroupedStats[], options: FilterStatsOptions) {
+export function filterStats(stats: GroupStats[], options: FilterStatsOptions) {
   if (options.all) {
     return stats;
   }
@@ -118,10 +123,17 @@ export function filterStats(stats: GroupedStats[], options: FilterStatsOptions) 
   }
 
   const downloadThreshold = 0.005 * options.totalDownloads; // 0.5%
-  return stats.filter((stat) => stat.downloads >= downloadThreshold);
+  const filtered = stats.filter((stat) => stat.downloads >= downloadThreshold);
+
+  // If we were to skip only a single state, we rather display it than replace it with "rest".
+  if (filtered.length + 1 >= stats.length) {
+    return stats;
+  }
+
+  return filtered;
 }
 
-function pickTopStats(stats: GroupedStats[], top: number) {
+function pickTopStats(stats: GroupStats[], top: number) {
   const sortedStats = stats.sort((a, b) => b.downloads - a.downloads);
   const topStats = sortedStats.slice(0, top);
   return topStats.sort((a, b) => versionCompare(a.version, b.version));

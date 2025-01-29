@@ -5,7 +5,7 @@ import { type CliOptions } from '../cli-options.js';
 import { getColors } from '../colors.js';
 import { formatDownloads } from '../format.js';
 import { fetchNpmLastWeekDownloads, type NpmLastWeekDownloadsResponse } from '../npm-api.js';
-import { filterStats, groupStats } from '../stats.js';
+import { type DisplayStats, filterStats, groupStats } from '../stats.js';
 import { parseVersion, versionCompare } from '../version.js';
 
 export async function printPackageStats(packageName: string, options: CliOptions) {
@@ -35,11 +35,19 @@ export async function printPackageStats(packageName: string, options: CliOptions
   const { type, stats } = groupStats(npmStats, options.group);
   const totalDownloads = Object.values(stats).reduce((sum, version) => sum + version.downloads, 0);
 
-  const statsToDisplay = filterStats(stats, {
+  const statsToDisplay: DisplayStats[] = filterStats(stats, {
     totalDownloads,
     all: options.all,
     top: options.top,
   });
+
+  const downloadToDisplay = statsToDisplay.reduce((sum, version) => sum + version.downloads, 0);
+  if (totalDownloads - downloadToDisplay > 0) {
+    statsToDisplay.push({
+      versionString: 'rest',
+      downloads: totalDownloads - downloadToDisplay,
+    });
+  }
 
   const colors = getColors(statsToDisplay.length, options.color);
   const primaryColor = chalk.hex(colors[0]);
@@ -49,11 +57,10 @@ export async function printPackageStats(packageName: string, options: CliOptions
 
   console.log(options.top ? `Top ${options.top} ${type} versions:\n` : `By ${type} version:\n`);
 
-  const maxDownloads = Math.max(...stats.map((v) => v.downloads));
+  const maxDownloads = Math.max(...statsToDisplay.map((v) => v.downloads));
   const displayData = statsToDisplay.map((item) => {
-    const versionParts = item.versionString.split('.');
     return {
-      version: versionParts.length < 3 ? `${item.versionString}.x` : item.versionString,
+      version: item.versionString,
       chart: renderChart(item.downloads / maxDownloads),
       downloads: formatDownloads(item.downloads, maxDownloads),
     };
