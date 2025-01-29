@@ -50,7 +50,11 @@ const gradients = {
 
 export const COLOR_SCHEMES = Object.keys(gradients) as ColorScheme[];
 
-export function getColors(count: number, colorScheme?: ColorScheme) {
+export function getPrimaryColor(colorScheme?: ColorScheme): string {
+  return gradients[colorScheme ?? getColorOfDay()].colors[0];
+}
+
+export function getColors(count: number, colorScheme?: ColorScheme): readonly string[] {
   const { colors, options }: GradientConfig = gradients[colorScheme ?? getColorOfDay()];
   const paddedCount = count + (options.padEnd ? Math.ceil(count * options.padEnd) : 0);
 
