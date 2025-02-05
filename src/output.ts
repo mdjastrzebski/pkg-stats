@@ -10,11 +10,11 @@ export type ChartItem = {
 };
 
 export type PrintChartOptions = {
+  colorScheme: ColorScheme;
   indent?: number;
-  colorScheme?: ColorScheme;
 };
 
-export function printChart(items: ChartItem[], options: PrintChartOptions = {}) {
+export function printChart(items: ChartItem[], options: PrintChartOptions) {
   const maxLabelLength = Math.max(...items.map((item) => item.label.length));
 
   const maxValue = Math.max(...items.map((item) => item.value));

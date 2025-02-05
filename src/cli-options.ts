@@ -2,7 +2,7 @@ import chalk from 'chalk';
 import meow from 'meow';
 import redent from 'redent';
 
-import { COLOR_SCHEMES, type ColorScheme } from './colors.js';
+import { COLOR_SCHEMES, type ColorScheme, getColorOfDay } from './colors.js';
 
 const colorCommand = chalk.hex('#22c1c3');
 const colorOption = chalk.hex('#fdbb2d');
@@ -69,7 +69,7 @@ export type CliOptions = {
   top?: number;
   all: boolean;
   extended: boolean;
-  color?: ColorScheme;
+  color: ColorScheme;
 };
 
 export function parseCliOptions(argv: string[]): CliOptions {
@@ -133,6 +133,14 @@ export function parseCliOptions(argv: string[]): CliOptions {
     top: cli.flags.top,
     all: cli.flags.all ?? false,
     extended: cli.flags.extended ?? false,
-    color: cli.flags.color as ColorScheme,
+    color: coalesceColor(cli.flags.color) ?? getColorOfDay(),
   };
+}
+
+function coalesceColor(color: string | undefined): ColorScheme | undefined {
+  if (color && COLOR_SCHEMES.includes(color as ColorScheme)) {
+    return color as ColorScheme;
+  }
+
+  return undefined;
 }
