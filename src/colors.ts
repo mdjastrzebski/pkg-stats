@@ -7,8 +7,8 @@ type GradientConfig = {
   options: {
     interpolation?: 'hsv' | 'rgb';
     hsvSpin?: 'short' | 'long';
-    padEnd?: number;
-    reverse?: boolean;
+    min?: number;
+    extra?: number;
   };
 };
 
@@ -40,11 +40,11 @@ const gradients = {
   summer: { colors: ['#fdbb2d', '#22c1c3'], options: {} },
   rainbow: {
     colors: ['#ff0100', '#ff0000'],
-    options: { interpolation: 'hsv', hsvSpin: 'long', padEnd: 0.1 },
+    options: { interpolation: 'hsv', hsvSpin: 'long', min: 7, extra: 1 },
   },
   pastel: {
     colors: ['#74ebd5', '#74ecd5'],
-    options: { interpolation: 'hsv', hsvSpin: 'long', padEnd: 0.1 },
+    options: { interpolation: 'hsv', hsvSpin: 'long', extra: 1 },
   },
 } as const;
 
@@ -56,7 +56,7 @@ export function getPrimaryColor(colorScheme?: ColorScheme): string {
 
 export function getColors(count: number, colorScheme?: ColorScheme): readonly string[] {
   const { colors, options }: GradientConfig = gradients[colorScheme ?? getColorOfDay()];
-  const paddedCount = count + (options.padEnd ? Math.ceil(count * options.padEnd) : 0);
+  const paddedCount = Math.max(count + (options.extra ?? 0), options.min ?? 0);
 
   if (paddedCount < colors.length) {
     return colors;
