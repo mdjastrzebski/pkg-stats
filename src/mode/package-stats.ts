@@ -2,6 +2,7 @@ import chalk from 'chalk';
 
 import { type CliOptions } from '../cli-options.js';
 import { getPrimaryColor } from '../colors.js';
+import { formatPercentage } from '../format.js';
 import { fetchNpmLastWeekDownloads, type NpmLastWeekDownloadsResponse } from '../npm-api.js';
 import { printChart } from '../output.js';
 import { type DisplayStats, filterStats, groupStats } from '../stats.js';
@@ -57,7 +58,11 @@ export async function printPackageStats(packageName: string, options: CliOptions
   const items = statsToDisplay.map((item) => ({
     label: item.versionString,
     value: item.downloads,
+    extended: options.extended ? formatPercentage(item.downloads / totalDownloads) : undefined,
   }));
 
-  printChart(items, { colorScheme: options.color, indent: 2 });
+  printChart(items, {
+    colorScheme: options.color,
+    indent: 2,
+  });
 }

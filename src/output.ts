@@ -6,6 +6,7 @@ import { formatDownloads } from './format.js';
 export type ChartItem = {
   label: string;
   value: number;
+  extended?: string;
 };
 
 export type PrintChartOptions = {
@@ -18,6 +19,7 @@ export function printChart(items: ChartItem[], options: PrintChartOptions = {}) 
 
   const maxValue = Math.max(...items.map((item) => item.value));
   const maxValueLength = formatDownloads(maxValue, maxValue).length;
+  const maxExtendedLength = Math.max(...items.map((item) => item.extended?.length ?? 0));
 
   const colors = getColors(items.length, options.colorScheme);
   const indent = options.indent ?? 0;
@@ -27,8 +29,11 @@ export function printChart(items: ChartItem[], options: PrintChartOptions = {}) 
     const label = ' '.repeat(indent) + item.label.padStart(maxLabelLength);
     const bar = formatBar(item.value / maxValue);
     const value = formatDownloads(item.value, maxValue).padStart(maxValueLength);
+    const extended = item.extended
+      ? chalk.dim(` ${item.extended}`.padStart(maxExtendedLength + 1))
+      : '';
 
-    console.log(`${label} ${color(bar)} ${color(value)}`);
+    console.log(`${label} ${color(bar)} ${color(value)}${extended}`);
   });
 }
 

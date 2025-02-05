@@ -19,6 +19,7 @@ Options:
   ${colorOption(
     '-a, --all',
   )}             Include all versions in output, even those with minimal downloads
+  ${colorOption('-x, --extended')}        Show extended stats
   ${colorOption('-c, --color')} <scheme>  ${wrapOption(
   `Choose color scheme from: ${COLOR_SCHEMES.sort().join(', ')}`,
   50,
@@ -66,7 +67,8 @@ export type CliOptions = {
   packageNames: string[];
   group?: 'major' | 'minor' | 'patch';
   top?: number;
-  all?: boolean;
+  all: boolean;
+  extended: boolean;
   color?: ColorScheme;
 };
 
@@ -99,6 +101,10 @@ export function parseCliOptions(argv: string[]): CliOptions {
         type: 'boolean',
         shortFlag: 'a',
       },
+      extended: {
+        type: 'boolean',
+        shortFlag: 'x',
+      },
       color: {
         shortFlag: 'c',
         type: 'string',
@@ -125,7 +131,8 @@ export function parseCliOptions(argv: string[]): CliOptions {
       ? 'patch'
       : undefined,
     top: cli.flags.top,
-    all: cli.flags.all,
+    all: cli.flags.all ?? false,
+    extended: cli.flags.extended ?? false,
     color: cli.flags.color as ColorScheme,
   };
 }

@@ -1,6 +1,7 @@
 import chalk from 'chalk';
 
 import { type CliOptions } from '../cli-options.js';
+import { formatPercentage } from '../format.js';
 import { fetchNpmLastWeekDownloads } from '../npm-api.js';
 import { printChart } from '../output.js';
 
@@ -24,12 +25,17 @@ export async function comparePackages(packageNames: string[], options: CliOption
   }
 
   console.log(chalk.bold(`\nNPM weekly downloads\n`));
+  const maxDownloads = Math.max(...packagesToDisplay.map((item) => item.downloads));
   const items = packagesToDisplay.map((item) => ({
     label: item.packageName,
     value: item.downloads,
+    extended: options.extended ? formatPercentage(item.downloads / maxDownloads) : undefined,
   }));
 
-  printChart(items, { colorScheme: options.color, indent: 2 });
+  printChart(items, {
+    colorScheme: options.color,
+    indent: 2,
+  });
 }
 
 async function fetchPackageData(packageName: string): Promise<PackageData | undefined> {
