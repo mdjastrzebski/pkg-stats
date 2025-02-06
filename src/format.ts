@@ -9,3 +9,7 @@ export function formatDownloads(downloads: number, maxDownloads: number) {
 
   return downloads.toString();
 }
+
+export function formatPercentage(percentage: number) {
+  return `${(percentage * 100).toFixed(1)}%`;
+}

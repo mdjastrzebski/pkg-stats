@@ -50,12 +50,12 @@ const gradients = {
 
 export const COLOR_SCHEMES = Object.keys(gradients) as ColorScheme[];
 
-export function getPrimaryColor(colorScheme?: ColorScheme): string {
-  return gradients[colorScheme ?? getColorOfDay()].colors[0];
+export function getPrimaryColor(colorScheme: ColorScheme): string {
+  return gradients[colorScheme].colors[0];
 }
 
-export function getColors(count: number, colorScheme?: ColorScheme): readonly string[] {
-  const { colors, options }: GradientConfig = gradients[colorScheme ?? getColorOfDay()];
+export function getColors(count: number, colorScheme: ColorScheme): readonly string[] {
+  const { colors, options }: GradientConfig = gradients[colorScheme];
   const paddedCount = Math.max(count + (options.extra ?? 0), options.min ?? 0);
 
   if (paddedCount < colors.length) {
@@ -71,7 +71,7 @@ export function getColors(count: number, colorScheme?: ColorScheme): readonly st
   return tinyColors.map((c) => c.toHexString());
 }
 
-function getColorOfDay(): ColorScheme {
+export function getColorOfDay(): ColorScheme {
   const date = new Date();
   const index = date.getDate() + date.getMonth() * 30 + date.getFullYear() * 360;
   return COLOR_SCHEMES[index % COLOR_SCHEMES.length];

@@ -2,7 +2,7 @@ import chalk from 'chalk';
 import meow from 'meow';
 import redent from 'redent';
 
-import { COLOR_SCHEMES, type ColorScheme } from './colors.js';
+import { COLOR_SCHEMES, type ColorScheme, getColorOfDay } from './colors.js';
 
 const colorCommand = chalk.hex('#22c1c3');
 const colorOption = chalk.hex('#fdbb2d');
@@ -19,6 +19,7 @@ Options:
   ${colorOption(
     '-a, --all',
   )}             Include all versions in output, even those with minimal downloads
+  ${colorOption('-x, --extended')}        Show extended stats
   ${colorOption('-c, --color')} <scheme>  ${wrapOption(
   `Choose color scheme from: ${COLOR_SCHEMES.sort().join(', ')}`,
   50,
@@ -66,8 +67,9 @@ export type CliOptions = {
   packageNames: string[];
   group?: 'major' | 'minor' | 'patch';
   top?: number;
-  all?: boolean;
-  color?: ColorScheme;
+  all: boolean;
+  extended: boolean;
+  color: ColorScheme;
 };
 
 export function parseCliOptions(argv: string[]): CliOptions {
@@ -99,6 +101,10 @@ export function parseCliOptions(argv: string[]): CliOptions {
         type: 'boolean',
         shortFlag: 'a',
       },
+      extended: {
+        type: 'boolean',
+        shortFlag: 'x',
+      },
       color: {
         shortFlag: 'c',
         type: 'string',
@@ -125,7 +131,16 @@ export function parseCliOptions(argv: string[]): CliOptions {
       ? 'patch'
       : undefined,
     top: cli.flags.top,
-    all: cli.flags.all,
-    color: cli.flags.color as ColorScheme,
+    all: cli.flags.all ?? false,
+    extended: cli.flags.extended ?? false,
+    color: coalesceColor(cli.flags.color) ?? getColorOfDay(),
   };
+}
+
+function coalesceColor(color: string | undefined): ColorScheme | undefined {
+  if (color && COLOR_SCHEMES.includes(color as ColorScheme)) {
+    return color as ColorScheme;
+  }
+
+  return undefined;
 }
