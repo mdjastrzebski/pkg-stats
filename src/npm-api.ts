@@ -1,3 +1,7 @@
+import { getCachedLastWeekDownloads, setCachedLastWeekDownloads } from './cache.js';
+
+const CACHE_LIFETIME = 15 * 60 * 1000; // 15 minutes
+
 export type NpmLastWeekDownloadsResponse = {
   package: string;
   downloads: Record<string, number>;
@@ -6,6 +10,15 @@ export type NpmLastWeekDownloadsResponse = {
 export async function fetchNpmLastWeekDownloads(
   packageName: string,
 ): Promise<NpmLastWeekDownloadsResponse> {
+  const cached = getCachedLastWeekDownloads(packageName);
+  if (cached && Date.now() - cached.timestamp < CACHE_LIFETIME) {
+    console.log(
+      `Using cached data for ${packageName}`,
+      new Date(cached.timestamp).toLocaleString(),
+    );
+    return cached.value;
+  }
+
   const response = await fetch(
     `https://api.npmjs.org/versions/${encodeURIComponent(packageName)}/last-week`,
   );
@@ -18,8 +31,12 @@ export async function fetchNpmLastWeekDownloads(
     throw new Error('No downloads found');
   }
 
-  return {
+  const result = {
     package: packageName,
     downloads: json.downloads,
   };
+
+  setCachedLastWeekDownloads(packageName, result);
+
+  return result;
 }
