@@ -3,6 +3,7 @@ import chalk from 'chalk';
 import { parseCliOptions, showHelp } from './cli-options.js';
 import { comparePackages } from './mode/compare-packages.js';
 import { printPackageStats } from './mode/package/package-stats.js';
+import { setDebug } from './utils/logger.js';
 
 export async function pkgStats(argv: string[]) {
   let options;
@@ -15,6 +16,10 @@ export async function pkgStats(argv: string[]) {
       chalk.red(`Error parsing CLI options: ${error instanceof Error ? error.message : error}`),
     );
     process.exit(2);
+  }
+
+  if (options.debug) {
+    setDebug(true);
   }
 
   if (options.packageNames.length === 1) {

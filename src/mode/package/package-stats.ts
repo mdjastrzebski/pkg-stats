@@ -4,17 +4,15 @@ import { type CliOptions } from '../../cli-options.js';
 import { printChart } from '../../utils/chart.js';
 import { getPrimaryColor } from '../../utils/colors.js';
 import { formatPercentage } from '../../utils/format.js';
-import {
-  fetchNpmLastWeekDownloads,
-  type NpmLastWeekDownloadsResponse,
-} from '../../utils/npm-api.js';
+import { type NpmVersionsLastWeekResponse } from '../../utils/npm-api.js';
+import { getVersionsLastWeek } from '../../utils/repository.js';
 import { type DisplayStats, filterStats, groupStats } from './stats.js';
 import { parseVersion, versionCompare } from './version.js';
 
 export async function printPackageStats(packageName: string, options: CliOptions) {
-  let data: NpmLastWeekDownloadsResponse;
+  let data: NpmVersionsLastWeekResponse;
   try {
-    data = await fetchNpmLastWeekDownloads(packageName);
+    data = await getVersionsLastWeek(packageName);
   } catch (error) {
     console.error(`Failed to fetch data for package "${packageName}"`, error);
     return;
@@ -61,7 +59,7 @@ export async function printPackageStats(packageName: string, options: CliOptions
   const items = statsToDisplay.map((item) => ({
     label: item.versionString,
     value: item.downloads,
-    extended: options.extended ? formatPercentage(item.downloads / totalDownloads) : undefined,
+    extended: formatPercentage(item.downloads / totalDownloads),
   }));
 
   printChart(items, {
