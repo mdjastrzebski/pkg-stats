@@ -1,6 +1,6 @@
 import { expect, test } from 'vitest';
 
-import { formatBar } from '../output.js';
+import { formatBar } from '../chart.js';
 
 test('renderChart basic tests', () => {
   expect(formatBar(0.0, { length: 10 })).toMatchInlineSnapshot(`"▏         "`);

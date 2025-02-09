@@ -2,7 +2,7 @@ import chalk from 'chalk';
 
 import { parseCliOptions, showHelp } from './cli-options.js';
 import { comparePackages } from './mode/compare-packages.js';
-import { printPackageStats } from './mode/package-stats.js';
+import { printPackageStats } from './mode/package/package-stats.js';
 
 export async function pkgStats(argv: string[]) {
   let options;

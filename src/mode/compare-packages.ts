@@ -1,9 +1,9 @@
 import chalk from 'chalk';
 
 import { type CliOptions } from '../cli-options.js';
-import { formatPercentage } from '../format.js';
-import { fetchNpmLastWeekDownloads } from '../npm-api.js';
-import { printChart } from '../output.js';
+import { printChart } from '../utils/chart.js';
+import { formatPercentage } from '../utils/format.js';
+import { fetchNpmLastWeekDownloads } from '../utils/npm-api.js';
 
 type PackageData = {
   packageName: string;

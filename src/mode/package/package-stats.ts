@@ -1,12 +1,15 @@
 import chalk from 'chalk';
 
-import { type CliOptions } from '../cli-options.js';
-import { getPrimaryColor } from '../colors.js';
-import { formatPercentage } from '../format.js';
-import { fetchNpmLastWeekDownloads, type NpmLastWeekDownloadsResponse } from '../npm-api.js';
-import { printChart } from '../output.js';
-import { type DisplayStats, filterStats, groupStats } from '../stats.js';
-import { parseVersion, versionCompare } from '../version.js';
+import { type CliOptions } from '../../cli-options.js';
+import { printChart } from '../../utils/chart.js';
+import { getPrimaryColor } from '../../utils/colors.js';
+import { formatPercentage } from '../../utils/format.js';
+import {
+  fetchNpmLastWeekDownloads,
+  type NpmLastWeekDownloadsResponse,
+} from '../../utils/npm-api.js';
+import { type DisplayStats, filterStats, groupStats } from './stats.js';
+import { parseVersion, versionCompare } from './version.js';
 
 export async function printPackageStats(packageName: string, options: CliOptions) {
   let data: NpmLastWeekDownloadsResponse;

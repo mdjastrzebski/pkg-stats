@@ -2,7 +2,7 @@ import chalk from 'chalk';
 import meow from 'meow';
 import redent from 'redent';
 
-import { COLOR_SCHEMES, type ColorScheme, getColorOfDay } from './colors.js';
+import { COLOR_SCHEMES, type ColorScheme, getColorOfDay } from './utils/colors.js';
 
 const colorCommand = chalk.hex('#22c1c3');
 const colorOption = chalk.hex('#fdbb2d');
