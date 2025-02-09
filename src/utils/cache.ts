@@ -4,54 +4,72 @@ import path from 'node:path';
 
 import { type NpmLastWeekDownloadsResponse } from './npm-api.js';
 
-type CacheEntry = {
-  timestamp: number;
-  value: NpmLastWeekDownloadsResponse;
+const CACHE_PATH = path.join(os.homedir(), '.pkg-stats/versions-last-week.json');
+const CURRENT_SCHEMA_VERSION = 1;
+
+type Cache = {
+  schemaVersion: number;
+  entries: Record<string, CacheEntry>;
 };
 
-const CACHE_PATH = path.join(os.homedir(), '.pkg-stats/versions-last-week.json');
+type CacheEntry = {
+  latest: {
+    timestamp: number;
+    response: NpmLastWeekDownloadsResponse;
+  };
+};
+
+let loadedCache: Cache;
+const emptyCache: Cache = {
+  schemaVersion: CURRENT_SCHEMA_VERSION,
+  entries: {},
+};
 
 export function getCachedLastWeekDownloads(packageName: string): CacheEntry | undefined {
-  const cache = getCacheEntries();
-  return cache[packageName];
+  loadCacheIfNeeded();
+  return loadedCache.entries[packageName];
 }
 
 export function setCachedLastWeekDownloads(
   packageName: string,
-  data: NpmLastWeekDownloadsResponse,
+  response: NpmLastWeekDownloadsResponse,
 ) {
-  const cache = getCacheEntries();
-  cache[packageName] = {
-    timestamp: Date.now(),
-    value: data,
+  loadCacheIfNeeded();
+  loadedCache.entries[packageName] = {
+    latest: {
+      timestamp: Date.now(),
+      response,
+    },
   };
 
-  writeCache(cache);
+  saveCache();
 }
 
-let _cache: Record<string, CacheEntry> | undefined;
-
-function getCacheEntries(): Record<string, CacheEntry> {
-  if (_cache) {
-    return _cache;
+function loadCacheIfNeeded() {
+  if (loadedCache) {
+    return;
   }
 
   if (!fs.existsSync(CACHE_PATH)) {
-    return (_cache = {});
+    loadedCache = { ...emptyCache };
   }
 
   try {
     const data = fs.readFileSync(CACHE_PATH, 'utf8');
-    return (_cache = JSON.parse(data));
+    loadedCache = JSON.parse(data);
+
+    if (loadedCache.schemaVersion !== CURRENT_SCHEMA_VERSION) {
+      loadedCache = { ...emptyCache };
+    }
   } catch {
-    return (_cache = {});
+    loadedCache = { ...emptyCache };
   }
 }
 
-function writeCache(cache: Record<string, CacheEntry>) {
+function saveCache() {
   try {
     mkdirSync(path.dirname(CACHE_PATH), { recursive: true });
-    fs.writeFileSync(CACHE_PATH, JSON.stringify(cache, null, 2));
+    fs.writeFileSync(CACHE_PATH, JSON.stringify(loadedCache, null, 2));
   } catch (error) {
     console.warn('Failed to save cache', error);
   }

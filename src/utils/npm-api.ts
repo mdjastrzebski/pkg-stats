@@ -11,12 +11,12 @@ export async function fetchNpmLastWeekDownloads(
   packageName: string,
 ): Promise<NpmLastWeekDownloadsResponse> {
   const cached = getCachedLastWeekDownloads(packageName);
-  if (cached && Date.now() - cached.timestamp < CACHE_LIFETIME) {
+  if (cached && Date.now() - cached.latest.timestamp < CACHE_LIFETIME) {
     console.log(
       `Using cached data for ${packageName}`,
-      new Date(cached.timestamp).toLocaleString(),
+      new Date(cached.latest.timestamp).toLocaleString(),
     );
-    return cached.value;
+    return cached.latest.response;
   }
 
   const response = await fetch(
