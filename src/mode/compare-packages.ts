@@ -1,9 +1,9 @@
 import chalk from 'chalk';
 
 import { type CliOptions } from '../cli-options.js';
-import { formatPercentage } from '../format.js';
-import { fetchNpmLastWeekDownloads } from '../npm-api.js';
-import { printChart } from '../output.js';
+import { printChart } from '../utils/chart.js';
+import { formatPercentage } from '../utils/format.js';
+import { getVersionsLastWeek } from './data/repository.js';
 
 type PackageData = {
   packageName: string;
@@ -40,7 +40,7 @@ export async function comparePackages(packageNames: string[], options: CliOption
 
 async function fetchPackageData(packageName: string): Promise<PackageData | undefined> {
   try {
-    const data = await fetchNpmLastWeekDownloads(packageName);
+    const data = await getVersionsLastWeek(packageName);
 
     if (!Object.keys(data.downloads).length) {
       console.warn(chalk.yellow(`No data found for package "${packageName}".`));

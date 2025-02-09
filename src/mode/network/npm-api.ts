@@ -1,11 +1,11 @@
-export type NpmLastWeekDownloadsResponse = {
+export type NpmVersionsLastWeekResponse = {
   package: string;
   downloads: Record<string, number>;
 };
 
-export async function fetchNpmLastWeekDownloads(
+export async function fetchNpmVersionsLastWeek(
   packageName: string,
-): Promise<NpmLastWeekDownloadsResponse> {
+): Promise<NpmVersionsLastWeekResponse> {
   const response = await fetch(
     `https://api.npmjs.org/versions/${encodeURIComponent(packageName)}/last-week`,
   );
@@ -18,8 +18,10 @@ export async function fetchNpmLastWeekDownloads(
     throw new Error('No downloads found');
   }
 
-  return {
+  const result = {
     package: packageName,
     downloads: json.downloads,
   };
+
+  return result;
 }
