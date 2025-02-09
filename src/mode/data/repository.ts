@@ -2,8 +2,8 @@ import fs, { mkdirSync } from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 
-import { logger } from './logger.js';
-import { fetchNpmVersionsLastWeek, type NpmVersionsLastWeekResponse } from './npm-api.js';
+import { logger } from '../../utils/logger.js';
+import { fetchNpmVersionsLastWeek, type NpmVersionsLastWeekResponse } from '../network/npm-api.js';
 
 const SCHEMA_VERSION = 1;
 const STORAGE_PATH = path.join(os.homedir(), '.pkg-stats/versions-last-week.json');

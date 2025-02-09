@@ -3,7 +3,7 @@ import chalk from 'chalk';
 import { type CliOptions } from '../cli-options.js';
 import { printChart } from '../utils/chart.js';
 import { formatPercentage } from '../utils/format.js';
-import { getVersionsLastWeek } from '../utils/repository.js';
+import { getVersionsLastWeek } from './data/repository.js';
 
 type PackageData = {
   packageName: string;

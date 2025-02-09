@@ -4,10 +4,17 @@ import { type CliOptions } from '../../cli-options.js';
 import { printChart } from '../../utils/chart.js';
 import { getPrimaryColor } from '../../utils/colors.js';
 import { formatPercentage } from '../../utils/format.js';
-import { type NpmVersionsLastWeekResponse } from '../../utils/npm-api.js';
-import { getVersionsLastWeek } from '../../utils/repository.js';
-import { type DisplayStats, filterStats, groupStats } from './stats.js';
-import { parseVersion, versionCompare } from './version.js';
+import { getVersionsLastWeek } from '../data/repository.js';
+import { parseVersion } from '../data/version.js';
+import { filterGroups, groupDownloads } from '../data/version-group.js';
+import { type NpmVersionsLastWeekResponse } from '../network/npm-api.js';
+
+type DisplayStats = {
+  versionString: string;
+  downloads: number;
+};
+
+const MIN_DOWNLOADS_SHARE = 0.005; // 0.5%
 
 export async function printPackageStats(packageName: string, options: CliOptions) {
   let data: NpmVersionsLastWeekResponse;
@@ -23,30 +30,27 @@ export async function printPackageStats(packageName: string, options: CliOptions
     process.exit(1);
   }
 
-  const npmStats = Object.keys(data.downloads)
-    .map((versionString) => {
-      const version = parseVersion(versionString);
-      return {
-        ...version,
-        downloads: data.downloads[versionString],
-      };
-    })
-    .sort(versionCompare);
+  const versions = Object.keys(data.downloads).map((versionString) => {
+    return {
+      version: parseVersion(versionString),
+      downloads: data.downloads[versionString],
+    };
+  });
 
-  const { type, stats } = groupStats(npmStats, options.group);
-  const totalDownloads = Object.values(stats).reduce((sum, version) => sum + version.downloads, 0);
+  const { type, groups } = groupDownloads(versions, options.group);
+  const totalDownloads = sum(groups, (group) => group.downloads);
 
-  const statsToDisplay: DisplayStats[] = filterStats(stats, {
-    totalDownloads,
+  const groupsToDisplay: DisplayStats[] = filterGroups(groups, {
+    min: MIN_DOWNLOADS_SHARE * totalDownloads,
     all: options.all,
     top: options.top,
   });
 
-  const downloadToDisplay = statsToDisplay.reduce((sum, version) => sum + version.downloads, 0);
-  if (totalDownloads - downloadToDisplay > 0) {
-    statsToDisplay.push({
+  const totalDisplayed = sum(groupsToDisplay, (group) => group.downloads);
+  if (totalDownloads - totalDisplayed > 0) {
+    groupsToDisplay.push({
       versionString: 'rest',
-      downloads: totalDownloads - downloadToDisplay,
+      downloads: totalDownloads - totalDisplayed,
     });
   }
 
@@ -56,7 +60,7 @@ export async function printPackageStats(packageName: string, options: CliOptions
 
   console.log(options.top ? `Top ${options.top} ${type} versions:\n` : `By ${type} version:\n`);
 
-  const items = statsToDisplay.map((item) => ({
+  const items = groupsToDisplay.map((item) => ({
     label: item.versionString,
     value: item.downloads,
     extended: formatPercentage(item.downloads / totalDownloads),
@@ -66,4 +70,8 @@ export async function printPackageStats(packageName: string, options: CliOptions
     colorScheme: options.color,
     indent: 2,
   });
+}
+
+function sum<T>(elements: T[], selector: (element: T) => number) {
+  return elements.reduce((sum, element) => sum + selector(element), 0);
 }
