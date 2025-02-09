@@ -1,36 +1,33 @@
 import chalk from 'chalk';
 
 import { type CliOptions } from '../../cli-options.js';
+import { getLastWeeksDownloads, type LastWeekDownloadsCacheEntry } from '../../utils/cache.js';
 import { printChart } from '../../utils/chart.js';
 import { getPrimaryColor } from '../../utils/colors.js';
 import { formatPercentage } from '../../utils/format.js';
-import {
-  fetchNpmLastWeekDownloads,
-  type NpmLastWeekDownloadsResponse,
-} from '../../utils/npm-api.js';
 import { type DisplayStats, filterStats, groupStats } from './stats.js';
 import { parseVersion, versionCompare } from './version.js';
 
 export async function printPackageStats(packageName: string, options: CliOptions) {
-  let data: NpmLastWeekDownloadsResponse;
+  let data: LastWeekDownloadsCacheEntry;
   try {
-    data = await fetchNpmLastWeekDownloads(packageName);
+    data = await getLastWeeksDownloads(packageName);
   } catch (error) {
     console.error(`Failed to fetch data for package "${packageName}"`, error);
     return;
   }
 
-  if (!Object.keys(data.downloads).length) {
+  if (!Object.keys(data.last.downloads).length) {
     console.error(`No data found for package "${packageName}".\n`);
     process.exit(1);
   }
 
-  const npmStats = Object.keys(data.downloads)
+  const npmStats = Object.keys(data.last.downloads)
     .map((versionString) => {
       const version = parseVersion(versionString);
       return {
         ...version,
-        downloads: data.downloads[versionString],
+        downloads: data.last.downloads[versionString],
       };
     })
     .sort(versionCompare);

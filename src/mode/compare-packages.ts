@@ -1,9 +1,9 @@
 import chalk from 'chalk';
 
 import { type CliOptions } from '../cli-options.js';
+import { getLastWeeksDownloads } from '../utils/cache.js';
 import { printChart } from '../utils/chart.js';
 import { formatPercentage } from '../utils/format.js';
-import { fetchNpmLastWeekDownloads } from '../utils/npm-api.js';
 
 type PackageData = {
   packageName: string;
@@ -40,16 +40,16 @@ export async function comparePackages(packageNames: string[], options: CliOption
 
 async function fetchPackageData(packageName: string): Promise<PackageData | undefined> {
   try {
-    const data = await fetchNpmLastWeekDownloads(packageName);
+    const data = await getLastWeeksDownloads(packageName);
 
-    if (!Object.keys(data.downloads).length) {
+    if (!Object.keys(data.last.downloads).length) {
       console.warn(chalk.yellow(`No data found for package "${packageName}".`));
       return undefined;
     }
 
     return {
       packageName,
-      downloads: Object.values(data.downloads).reduce((sum, downloads) => sum + downloads, 0),
+      downloads: Object.values(data.last.downloads).reduce((sum, downloads) => sum + downloads, 0),
     };
   } catch (error) {
     console.warn(chalk.yellow(`Failed to fetch data for package "${packageName}"`, error));
