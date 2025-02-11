@@ -133,7 +133,7 @@ export function parseCliOptions(argv: string[]): CliOptions {
     top: cli.flags.top,
     all: cli.flags.all ?? false,
     extended: cli.flags.extended ?? false,
-    color: coalesceColor(cli.flags.color) ?? getColorOfDay(),
+    color: coalesceColor(cli.flags.color ?? process.env.PKG_STATS_COLOR_SCHEME) ?? getColorOfDay(),
   };
 }
 
