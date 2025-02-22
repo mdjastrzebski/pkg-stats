@@ -29,7 +29,7 @@ export async function comparePackages(packageNames: string[], options: CliOption
   const items = packagesToDisplay.map((item) => ({
     label: item.packageName,
     value: item.downloads,
-    extended: options.extended ? formatPercentage(item.downloads / maxDownloads) : undefined,
+    extra: formatPercentage(item.downloads / maxDownloads),
   }));
 
   printChart(items, {
