@@ -58,7 +58,7 @@ export async function printPackageStats(packageName: string, options: CliOptions
   const items = statsToDisplay.map((item) => ({
     label: item.versionString,
     value: item.downloads,
-    extended: options.extended ? formatPercentage(item.downloads / totalDownloads) : undefined,
+    extra: formatPercentage(item.downloads / totalDownloads),
   }));
 
   printChart(items, {

@@ -6,7 +6,7 @@ import { formatDownloads } from './format.js';
 export type ChartItem = {
   label: string;
   value: number;
-  extended?: string;
+  extra?: string;
 };
 
 export type PrintChartOptions = {
@@ -19,24 +19,22 @@ export function printChart(items: ChartItem[], options: PrintChartOptions) {
 
   const maxValue = Math.max(...items.map((item) => item.value));
   const maxValueLength = formatDownloads(maxValue, maxValue).length;
-  const maxExtendedLength = Math.max(...items.map((item) => item.extended?.length ?? 0));
+  const maxExtraLength = Math.max(...items.map((item) => item.extra?.length ?? 0));
 
   const colors = getColors(items.length, options.colorScheme);
   const indent = options.indent ?? 0;
 
   const chartWidth =
-    getTerminalWidth() - indent - maxLabelLength - maxValueLength - maxExtendedLength - 4;
+    getTerminalWidth() - indent - maxLabelLength - maxValueLength - maxExtraLength - 5;
 
   items.forEach((item, i) => {
     const color = chalk.hex(colors[i]);
     const label = ' '.repeat(indent) + item.label.padStart(maxLabelLength);
     const bar = formatBar(item.value / maxValue, { width: clamp(chartWidth, 30, 60) });
     const value = formatDownloads(item.value, maxValue).padStart(maxValueLength);
-    const extended = item.extended
-      ? chalk.dim(` ${item.extended}`.padStart(maxExtendedLength + 1))
-      : '';
+    const extra = item.extra ? chalk.dim(` ${item.extra}`.padStart(maxExtraLength + 1)) : '';
 
-    console.log(`${label} ${color(bar)} ${color(value)}${extended}`);
+    console.log(`${label} ${color(bar)} ${color(value)}${extra}`);
   });
 }
 
