@@ -8,7 +8,9 @@ Tests live in `src/__tests__/` and use Vitest. Documentation assets, including e
 
 ## Build, Test, and Development Commands
 
-Use pnpm 9.x, as pinned in `package.json`.
+Use Node 24 via `.nvmrc` for local development and CI. The package supports Node `>=22.13.0`.
+
+Use pnpm 11.x, as pinned in `package.json`.
 
 - `pnpm install` installs dependencies from `pnpm-lock.yaml`.
 - `pnpm build` runs `tsc` and emits `dist/`.
