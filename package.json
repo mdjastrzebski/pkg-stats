@@ -36,22 +36,22 @@
     "validate": "pnpm lint && pnpm typecheck && pnpm test -- --no-watch"
   },
   "dependencies": {
-    "chalk": "^5.4.1",
+    "chalk": "^5.6.2",
     "meow": "^13.2.0",
     "redent": "^4.0.0",
     "tinygradient": "^1.1.5"
   },
   "devDependencies": {
-    "@eslint/js": "^9.18.0",
-    "@release-it/conventional-changelog": "^10.0.0",
-    "@types/node": "^22.10.5",
-    "eslint": "^9.18.0",
+    "@eslint/js": "^9.39.4",
+    "@release-it/conventional-changelog": "^10.0.6",
+    "@types/node": "^22.19.20",
+    "eslint": "^9.39.4",
     "eslint-plugin-simple-import-sort": "^12.1.1",
-    "globals": "^15.14.0",
-    "release-it": "^18.1.1",
-    "typescript": "^5.7.3",
-    "typescript-eslint": "^8.19.1",
-    "vitest": "^2.1.8"
+    "globals": "^15.15.0",
+    "release-it": "^18.1.2",
+    "typescript": "^5.9.3",
+    "typescript-eslint": "^8.61.0",
+    "vitest": "^2.1.9"
   },
   "packageManager": "pnpm@11.5.3+sha512.7ac1c919341c213a34dc0d02afb7143c5c26ac26ee8c4782deea821b8ac64d2134a081fd8941dae6e29bbb48f58dfc2b7fbceeccc07cb2f09d219d342a4969ed"
 }
