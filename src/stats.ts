@@ -134,7 +134,12 @@ export function filterStats(stats: GroupStats[], options: FilterStatsOptions) {
 }
 
 function pickTopStats(stats: GroupStats[], top: number) {
-  const sortedStats = stats.sort((a, b) => b.downloads - a.downloads);
+  const sortedStats = [...stats].sort((a, b) => b.downloads - a.downloads);
   const topStats = sortedStats.slice(0, top);
   return topStats.sort((a, b) => versionCompare(a.version, b.version));
+}
+
+export function downloadCompare(a: GroupStats, b: GroupStats) {
+  const downloadDifference = b.downloads - a.downloads;
+  return downloadDifference === 0 ? versionCompare(a.version, b.version) : downloadDifference;
 }

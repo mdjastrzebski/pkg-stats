@@ -15,6 +15,7 @@ Options:
   ${colorOption('--major')}               Group by major version
   ${colorOption('--minor')}               Group by minor version
   ${colorOption('--patch')}               Group by patch version
+  ${colorOption('--sort')} <order>        Sort results by version or downloads
   ${colorOption('-t, --top')} <number>    Show top <number> most downloaded versions
   ${colorOption(
     '-a, --all',
@@ -62,10 +63,15 @@ export function showHelp() {
   console.log(redent(HELP, 2));
 }
 
+const SORT_ORDERS = ['version', 'downloads'] as const;
+
+export type SortOrder = (typeof SORT_ORDERS)[number];
+
 export type CliOptions = {
   packageNames: string[];
   group?: 'major' | 'minor' | 'patch';
   top?: number;
+  sort: SortOrder;
   all: boolean;
   color: ColorScheme;
 };
@@ -90,6 +96,10 @@ export function parseCliOptions(argv: string[]): CliOptions {
       },
       patch: {
         type: 'boolean',
+      },
+      sort: {
+        type: 'string',
+        choices: [...SORT_ORDERS],
       },
       top: {
         shortFlag: 't',
@@ -125,9 +135,18 @@ export function parseCliOptions(argv: string[]): CliOptions {
       ? 'patch'
       : undefined,
     top: cli.flags.top,
+    sort: coalesceSortOrder(cli.flags.sort) ?? 'version',
     all: cli.flags.all ?? false,
     color: coalesceColor(cli.flags.color ?? process.env.PKG_STATS_COLOR_SCHEME) ?? getColorOfDay(),
   };
+}
+
+function coalesceSortOrder(sort: string | undefined): SortOrder | undefined {
+  if (sort && SORT_ORDERS.includes(sort as SortOrder)) {
+    return sort as SortOrder;
+  }
+
+  return undefined;
 }
 
 function coalesceColor(color: string | undefined): ColorScheme | undefined {

@@ -5,7 +5,7 @@ import { getPrimaryColor } from '../colors.js';
 import { formatPercentage } from '../format.js';
 import { fetchNpmLastWeekDownloads, type NpmLastWeekDownloadsResponse } from '../npm-api.js';
 import { printChart } from '../output.js';
-import { type DisplayStats, filterStats, groupStats } from '../stats.js';
+import { type DisplayStats, downloadCompare, filterStats, groupStats } from '../stats.js';
 import { parseVersion, versionCompare } from '../version.js';
 
 export async function printPackageStats(packageName: string, options: CliOptions) {
@@ -35,11 +35,14 @@ export async function printPackageStats(packageName: string, options: CliOptions
   const { type, stats } = groupStats(npmStats, options.group);
   const totalDownloads = Object.values(stats).reduce((sum, version) => sum + version.downloads, 0);
 
-  const statsToDisplay: DisplayStats[] = filterStats(stats, {
+  const filteredStats = filterStats(stats, {
     totalDownloads,
     all: options.all,
     top: options.top,
   });
+  const statsToDisplay: DisplayStats[] = options.sort === 'downloads'
+    ? [...filteredStats].sort(downloadCompare)
+    : filteredStats;
 
   const downloadToDisplay = statsToDisplay.reduce((sum, version) => sum + version.downloads, 0);
   if (totalDownloads - downloadToDisplay > 0) {
